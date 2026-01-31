@@ -164,6 +164,7 @@ function MOTab({ month, categoryTab, onCategoryChange }: MOTabProps) {
               category={category}
               columns={moColumns}
               statusField="status"
+              selectedMonth={month}
               onRefresh={loadData}
               onAddItem={(subcategoryName, item) => handleAddItem(category.name, subcategoryName, item)}
               onEditItem={handleEditItem}

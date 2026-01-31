@@ -23,6 +23,7 @@ interface CategoryTableProps<T extends Record<string, unknown>> {
   category: Category<T>;
   columns: ColumnConfig[];
   statusField: keyof T;
+  selectedMonth?: string;
   onRefresh?: () => void;
   onAddItem?: (subcategoryName: string, item: ItemFormData) => Promise<void>;
   onEditItem?: (item: T, subcategoryName: string) => void;
@@ -46,6 +47,7 @@ function CategoryTable<T extends Record<string, unknown>>({
   category,
   columns,
   statusField,
+  selectedMonth,
   onRefresh,
   onAddItem,
   onEditItem,
@@ -123,7 +125,7 @@ function CategoryTable<T extends Record<string, unknown>>({
                           />
                         ) : (
                           column.compute
-                            ? column.compute(item as Record<string, unknown>)
+                            ? column.compute(item as Record<string, unknown>, { selectedMonth: selectedMonth || '' })
                             : String(item[column.id as keyof T])
                         )}
                       </TableCell>

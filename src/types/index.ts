@@ -50,10 +50,14 @@ export interface Category<T> {
   subcategories: Subcategory<T>[];
 }
 
+export interface ComputeContext {
+  selectedMonth: string; // Format: YYYY-MM
+}
+
 export interface ColumnConfig {
   id: string;
   label: string;
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
-  compute?: (item: Record<string, unknown>) => string | number;
+  compute?: (item: Record<string, unknown>, context?: ComputeContext) => string | number;
 }

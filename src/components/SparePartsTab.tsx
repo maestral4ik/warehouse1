@@ -164,6 +164,7 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
               category={category}
               columns={sparePartsColumns}
               statusField="status"
+              selectedMonth={month}
               onRefresh={loadData}
               onAddItem={(subcategoryName, item) => handleAddItem(category.name, subcategoryName, item)}
               onEditItem={handleEditItem}
