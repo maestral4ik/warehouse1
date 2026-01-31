@@ -122,7 +122,9 @@ function CategoryTable<T extends Record<string, unknown>>({
                             sx={{ fontWeight: 500 }}
                           />
                         ) : (
-                          String(item[column.id as keyof T])
+                          column.compute
+                            ? column.compute(item as Record<string, unknown>)
+                            : String(item[column.id as keyof T])
                         )}
                       </TableCell>
                     ))}

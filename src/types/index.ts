@@ -55,4 +55,5 @@ export interface ColumnConfig {
   label: string;
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
+  compute?: (item: Record<string, unknown>) => string | number;
 }
