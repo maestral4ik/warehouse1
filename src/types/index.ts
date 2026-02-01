@@ -1,12 +1,15 @@
-export type SparePartStatus = 'in stock' | 'out of stock' | 'written off';
+export type SparePartStatus = 'in stock' | 'written off';
 
-export type MovementType = 'incoming' | 'outgoing' | 'transfer' | 'write-off';
+export type MovementType = 'incoming' | 'outgoing' | 'transfer';
 
 export interface StockMovement {
   id: string;
   date: string;
   type: MovementType;
   quantity: number;
+  pricePerUnit?: number;
+  supplier?: string;
+  ttnNumber?: string;
   notes?: string;
 }
 
@@ -60,4 +63,5 @@ export interface ColumnConfig {
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
   compute?: (item: Record<string, unknown>, context?: ComputeContext) => string | number;
+  summable?: boolean;
 }

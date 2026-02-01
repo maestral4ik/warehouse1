@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Box, Tabs, Tab, CircularProgress, Alert } from '@mui/material';
 import CategoryTable from './CategoryTable';
 import AddItemDialog, { ItemFormData, EditItemData } from './AddItemDialog';
-import { fetchSpareParts, createSparePart, updateSparePart } from '../api';
+import { WriteOffData } from './WriteOffDialog';
+import MovementHistoryDrawer from './MovementHistoryDrawer';
+import { fetchSpareParts, createSparePart, updateSparePart, writeOffItem } from '../api';
 import { sparePartsColumns } from '../data/sparePartsData';
 import { Category, SparePartItem } from '../types';
 
@@ -21,6 +23,10 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<EditItemData | null>(null);
   const [editSubcategory, setEditSubcategory] = useState('');
+
+  // Movement history drawer state
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<SparePartItem | null>(null);
 
   const loadData = async () => {
     try {
@@ -59,7 +65,7 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
       supplier: item.supplier,
       ttnNumber: item.ttnNumber,
       lastMovementDate: dateStr,
-      status: item.quantity > 0 ? 'in stock' : 'out of stock',
+      status: item.quantity > 0 ? 'in stock' : 'written off',
       movements: [
         {
           id: `m-${Date.now()}`,
@@ -96,9 +102,19 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
       price: item.price,
       supplier: item.supplier,
       ttnNumber: item.ttnNumber,
-      status: item.quantity > 0 ? 'in stock' : 'out of stock',
+      status: item.quantity > 0 ? 'in stock' : 'written off',
     });
     loadData();
+  };
+
+  const handleWriteOff = async (item: SparePartItem, writeOffData: WriteOffData) => {
+    await writeOffItem('spare-parts', item.id, writeOffData);
+    loadData();
+  };
+
+  const handleViewMovements = (item: SparePartItem) => {
+    setSelectedItem(item);
+    setHistoryDrawerOpen(true);
   };
 
   if (loading) {
@@ -130,6 +146,17 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
         mode="edit"
         initialData={editingItem || undefined}
       />
+
+      {selectedItem && (
+        <MovementHistoryDrawer
+          open={historyDrawerOpen}
+          onClose={() => setHistoryDrawerOpen(false)}
+          itemId={selectedItem.id}
+          itemName={selectedItem.name}
+          itemType="spare-parts"
+          onMovementChange={loadData}
+        />
+      )}
 
       <Tabs
         value={safeCategoryTab}
@@ -168,6 +195,8 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
               onRefresh={loadData}
               onAddItem={(subcategoryName, item) => handleAddItem(category.name, subcategoryName, item)}
               onEditItem={handleEditItem}
+              onWriteOff={handleWriteOff}
+              onViewMovements={handleViewMovements}
             />
           )}
         </Box>

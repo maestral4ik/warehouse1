@@ -1,12 +1,15 @@
-export type SparePartStatus = 'in stock' | 'out of stock' | 'written off';
+export type SparePartStatus = 'in stock' | 'written off';
 
-export type MovementType = 'incoming' | 'outgoing' | 'transfer' | 'write-off';
+export type MovementType = 'incoming' | 'outgoing' | 'transfer';
 
 export interface StockMovement {
   id: string;
   date: string; // Format: DD.MM.YYYY
   type: MovementType;
   quantity: number;
+  pricePerUnit?: number;
+  supplier?: string;
+  ttnNumber?: string;
   notes?: string;
 }
 

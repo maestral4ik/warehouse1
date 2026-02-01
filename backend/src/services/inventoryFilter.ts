@@ -1,6 +1,16 @@
 import { SparePartItem, MOItem, Category, StockMovement } from '../types';
 
 /**
+ * Monthly balance calculation result
+ */
+export interface MonthlyBalance {
+  openingQty: number;      // Balance before the month
+  incomingQty: number;     // Incoming during the month
+  issuedQty: number;       // Outgoing during the month
+  endingQty: number;       // Balance at end of month
+}
+
+/**
  * Parse date string (DD.MM.YYYY) to Date object
  */
 function parseDate(dateStr: string): Date {
@@ -33,6 +43,69 @@ function isBeforeMonth(dateStr: string, targetMonth: string): boolean {
 }
 
 /**
+ * Calculate rolling monthly balance for an item
+ *
+ * Opening Quantity = Sum(incoming before M) − Sum(outgoing before M)
+ * Incoming Quantity = All incoming movements within month M
+ * Issued Quantity = All outgoing movements within month M
+ * Ending Quantity = Opening + Incoming − Issued
+ */
+export function calculateMonthlyBalance(movements: StockMovement[], targetMonth: string): MonthlyBalance {
+  let openingQty = 0;
+  let incomingQty = 0;
+  let issuedQty = 0;
+
+  for (const movement of movements) {
+    const movementMonth = getYearMonth(movement.date);
+    const qty = movement.quantity;
+
+    if (movementMonth < targetMonth) {
+      // Before target month - affects opening balance
+      if (movement.type === 'incoming') {
+        openingQty += qty;
+      } else if (movement.type === 'outgoing') {
+        openingQty -= qty;
+      }
+    } else if (movementMonth === targetMonth) {
+      // Within target month
+      if (movement.type === 'incoming') {
+        incomingQty += qty;
+      } else if (movement.type === 'outgoing') {
+        issuedQty += qty;
+      }
+    }
+    // Movements after target month are ignored
+  }
+
+  const endingQty = openingQty + incomingQty - issuedQty;
+
+  return {
+    openingQty: Math.max(0, openingQty),
+    incomingQty,
+    issuedQty,
+    endingQty: Math.max(0, endingQty),
+  };
+}
+
+/**
+ * Calculate total current available quantity (sum of all movements up to now)
+ * Used for write-off validation
+ */
+export function calculateCurrentStock(movements: StockMovement[]): number {
+  let stock = 0;
+
+  for (const movement of movements) {
+    if (movement.type === 'incoming') {
+      stock += movement.quantity;
+    } else if (movement.type === 'outgoing') {
+      stock -= movement.quantity;
+    }
+  }
+
+  return Math.max(0, stock);
+}
+
+/**
  * Check if item has any movement in the specified month
  */
 function hasMovementInMonth(movements: StockMovement[], targetMonth: string): boolean {
@@ -50,50 +123,73 @@ function hasIncomingMovementInOrAfterMonth(movements: StockMovement[], targetMon
 }
 
 /**
+ * Check if item has any incoming movement in the specified month
+ */
+function hasIncomingInMonth(movements: StockMovement[], targetMonth: string): boolean {
+  return movements.some(m => m.type === 'incoming' && isInMonth(m.date, targetMonth));
+}
+
+/**
+ * Calculate ending balance for the month before the target month
+ */
+function getEndingBalanceBeforeMonth(movements: StockMovement[], targetMonth: string): number {
+  let balance = 0;
+  for (const movement of movements) {
+    const movementMonth = getYearMonth(movement.date);
+    if (movementMonth < targetMonth) {
+      if (movement.type === 'incoming') {
+        balance += movement.quantity;
+      } else if (movement.type === 'outgoing') {
+        balance -= movement.quantity;
+      }
+    }
+  }
+  return balance;
+}
+
+/**
  * Determine if an item should be visible for the selected month.
  *
  * Rules:
- * 1. Item is visible if it had any stock balance during the month
- * 2. Item is visible if it had any movement during the month
- * 3. Item is NOT visible if it was fully written off in a previous month
- *    AND has no new incoming movement in the selected month
+ * 1. Item is visible if it has any movement in the target month
+ * 2. Item is visible if it had stock balance at start of target month (opening > 0)
+ * 3. Item is NOT visible if ending balance was 0 before target month
+ *    AND has no incoming movement in the target month
  */
 export function shouldItemBeVisible<T extends SparePartItem | MOItem>(
   item: T,
   targetMonth: string
 ): boolean {
-  // If item was written off
-  if (item.writtenOffDate) {
-    const writtenOffYearMonth = getYearMonth(item.writtenOffDate);
-
-    // If written off in the target month - show it (with "written off" status)
-    if (writtenOffYearMonth === targetMonth) {
-      return true;
-    }
-
-    // If written off before the target month
-    if (isBeforeMonth(item.writtenOffDate, targetMonth)) {
-      // Check if there's any incoming movement in or after target month
-      if (hasIncomingMovementInOrAfterMonth(item.movements, targetMonth)) {
-        return true;
-      }
-      // No new incoming after write-off - hide it
-      return false;
-    }
-  }
-
   // Check if item has any movement in the target month
   if (hasMovementInMonth(item.movements, targetMonth)) {
     return true;
   }
 
-  // Check if item existed before or during this month (had any earlier movement)
-  const hasEarlierMovement = item.movements.some(m => {
-    const movementYearMonth = getYearMonth(m.date);
-    return movementYearMonth <= targetMonth;
+  // Calculate opening balance (ending balance of previous months)
+  const openingBalance = getEndingBalanceBeforeMonth(item.movements, targetMonth);
+
+  // If opening balance > 0, item should be visible
+  if (openingBalance > 0) {
+    return true;
+  }
+
+  // Opening balance is 0 - only show if there's incoming in target month
+  if (hasIncomingInMonth(item.movements, targetMonth)) {
+    return true;
+  }
+
+  // Check if item has any movement at all before this month (to show items that existed)
+  const hasAnyMovementBefore = item.movements.some(m => {
+    const movementMonth = getYearMonth(m.date);
+    return movementMonth < targetMonth;
   });
 
-  return hasEarlierMovement;
+  // If item had movements before but balance is 0, don't show (written off)
+  if (hasAnyMovementBefore && openingBalance <= 0) {
+    return false;
+  }
+
+  return false;
 }
 
 /**
@@ -115,37 +211,45 @@ export function getItemStatusForMonth<T extends SparePartItem | MOItem>(
     if (movementYearMonth <= targetMonth) {
       if (movement.type === 'incoming') {
         quantity += movement.quantity;
-      } else if (movement.type === 'outgoing' || movement.type === 'write-off') {
+      } else if (movement.type === 'outgoing') {
         quantity -= movement.quantity;
       }
     }
   }
 
   if (quantity <= 0) {
-    // For MO items use 'consumed', for spare parts use 'out of stock'
-    return ('code' in item ? 'consumed' : 'out of stock') as T['status'];
+    // For MO items use 'consumed', for spare parts use 'written off'
+    return ('code' in item ? 'consumed' : 'written off') as T['status'];
   }
 
   return 'in stock' as T['status'];
 }
 
 /**
- * Filter categories by month
+ * Filter categories by month and calculate rolling balances
  */
 export function filterCategoriesByMonth<T extends SparePartItem | MOItem>(
   categories: Category<T>[],
   targetMonth: string
-): Category<T>[] {
+): Category<T & MonthlyBalance>[] {
   return categories.map(category => ({
     ...category,
     subcategories: category.subcategories.map(subcategory => ({
       ...subcategory,
       items: subcategory.items
         .filter(item => shouldItemBeVisible(item, targetMonth))
-        .map(item => ({
-          ...item,
-          status: getItemStatusForMonth(item, targetMonth),
-        })),
+        .map(item => {
+          const balance = calculateMonthlyBalance(item.movements, targetMonth);
+          return {
+            ...item,
+            status: getItemStatusForMonth(item, targetMonth),
+            // Add computed monthly balance fields
+            openingQty: balance.openingQty,
+            incomingQty: balance.incomingQty,
+            issuedQty: balance.issuedQty,
+            endingQty: balance.endingQty,
+          };
+        }),
     })).filter(sub => sub.items.length > 0),
   })).filter(cat => cat.subcategories.length > 0);
 }

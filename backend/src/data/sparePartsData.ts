@@ -47,7 +47,7 @@ export const sparePartsData: Category<SparePartItem>[] = [
             supplier: 'АвтоДеталь',
             ttnNumber: 'ТТН-2025-056',
             lastMovementDate: '28.12.2025',
-            status: 'out of stock',
+            status: 'written off',
             movements: [
               { id: 'm6', date: '15.09.2025', type: 'incoming', quantity: 5 },
               { id: 'm7', date: '28.12.2025', type: 'outgoing', quantity: 5 },
@@ -101,7 +101,7 @@ export const sparePartsData: Category<SparePartItem>[] = [
             writtenOffDate: '12.12.2025',
             movements: [
               { id: 'm12', date: '01.10.2025', type: 'incoming', quantity: 2 },
-              { id: 'm13', date: '12.12.2025', type: 'write-off', quantity: 2, notes: 'Defective parts' },
+              { id: 'm13', date: '12.12.2025', type: 'outgoing', quantity: 2, notes: 'Defective parts' },
             ],
           },
         ],
@@ -153,7 +153,7 @@ export const sparePartsData: Category<SparePartItem>[] = [
             supplier: 'АвтоДеталь',
             ttnNumber: 'ТТН-2025-067',
             lastMovementDate: '02.01.2026',
-            status: 'out of stock',
+            status: 'written off',
             movements: [
               { id: 'm18', date: '01.11.2025', type: 'incoming', quantity: 4 },
               { id: 'm19', date: '02.01.2026', type: 'outgoing', quantity: 4 },
@@ -206,7 +206,7 @@ export const sparePartsData: Category<SparePartItem>[] = [
             writtenOffDate: '25.11.2025',
             movements: [
               { id: 'm23', date: '01.10.2025', type: 'incoming', quantity: 20 },
-              { id: 'm24', date: '25.11.2025', type: 'write-off', quantity: 20, notes: 'Recalled batch' },
+              { id: 'm24', date: '25.11.2025', type: 'outgoing', quantity: 20, notes: 'Recalled batch' },
             ],
           },
         ],
@@ -258,7 +258,7 @@ export const sparePartsData: Category<SparePartItem>[] = [
             supplier: 'ТехноПарт',
             ttnNumber: 'ТТН-2025-072',
             lastMovementDate: '30.12.2025',
-            status: 'out of stock',
+            status: 'written off',
             movements: [
               { id: 'm29', date: '01.10.2025', type: 'incoming', quantity: 10 },
               { id: 'm30', date: '30.12.2025', type: 'outgoing', quantity: 10 },
@@ -311,7 +311,7 @@ export const sparePartsData: Category<SparePartItem>[] = [
             writtenOffDate: '07.01.2026',
             movements: [
               { id: 'm34', date: '01.12.2025', type: 'incoming', quantity: 3 },
-              { id: 'm35', date: '07.01.2026', type: 'write-off', quantity: 3, notes: 'Quality issues' },
+              { id: 'm35', date: '07.01.2026', type: 'outgoing', quantity: 3, notes: 'Quality issues' },
             ],
           },
         ],

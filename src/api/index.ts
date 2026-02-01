@@ -1,4 +1,4 @@
-import { Category, SparePartItem, MOItem } from '../types';
+import { Category, SparePartItem, MOItem, StockMovement } from '../types';
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -103,12 +103,12 @@ export function formatMonthDisplay(month: string): string {
   return date.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
 }
 
-// Generate list of months for selector (past 12 months + current + next 2)
+// Generate list of months for selector (past 24 months + current + next 12)
 export function getMonthOptions(): { value: string; label: string }[] {
   const options: { value: string; label: string }[] = [];
   const now = new Date();
 
-  for (let i = -12; i <= 2; i++) {
+  for (let i = -6; i <= 4; i++) {
     const date = new Date(now.getFullYear(), now.getMonth() + i);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -118,4 +118,69 @@ export function getMonthOptions(): { value: string; label: string }[] {
   }
 
   return options;
+}
+
+export async function writeOffItem(
+  type: 'spare-parts' | 'mo',
+  itemId: string,
+  data: { quantity: number; notes?: string; month?: string }
+): Promise<SparePartItem | MOItem> {
+  const response = await fetch(`${API_URL}/${type}/${itemId}/write-off`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to write off item');
+  const result = await response.json();
+  return result.item;
+}
+
+// Movement CRUD operations
+export async function fetchItemMovements(
+  type: 'spare-parts' | 'mo',
+  itemId: string
+): Promise<StockMovement[]> {
+  const response = await fetch(`${API_URL}/${type}/${itemId}/movements`);
+  if (!response.ok) throw new Error('Failed to fetch movements');
+  return response.json();
+}
+
+export async function createMovement(
+  type: 'spare-parts' | 'mo',
+  itemId: string,
+  data: Omit<StockMovement, 'id'>
+): Promise<StockMovement> {
+  const response = await fetch(`${API_URL}/${type}/${itemId}/movements`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to create movement');
+  return response.json();
+}
+
+export async function updateMovement(
+  type: 'spare-parts' | 'mo',
+  itemId: string,
+  movementId: string,
+  data: Partial<StockMovement>
+): Promise<StockMovement> {
+  const response = await fetch(`${API_URL}/${type}/${itemId}/movements/${movementId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update movement');
+  return response.json();
+}
+
+export async function deleteMovement(
+  type: 'spare-parts' | 'mo',
+  itemId: string,
+  movementId: string
+): Promise<void> {
+  const response = await fetch(`${API_URL}/${type}/${itemId}/movements/${movementId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete movement');
 }

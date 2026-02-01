@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Box, Tabs, Tab, CircularProgress, Alert } from '@mui/material';
 import CategoryTable from './CategoryTable';
 import AddItemDialog, { ItemFormData, EditItemData } from './AddItemDialog';
-import { fetchMOItems, createMOItem, updateMOItem } from '../api';
+import { WriteOffData } from './WriteOffDialog';
+import MovementHistoryDrawer from './MovementHistoryDrawer';
+import { fetchMOItems, createMOItem, updateMOItem, writeOffItem } from '../api';
 import { moColumns } from '../data/moData';
 import { Category, MOItem } from '../types';
 
@@ -21,6 +23,10 @@ function MOTab({ month, categoryTab, onCategoryChange }: MOTabProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<EditItemData | null>(null);
   const [editSubcategory, setEditSubcategory] = useState('');
+
+  // Movement history drawer state
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MOItem | null>(null);
 
   const loadData = async () => {
     try {
@@ -101,6 +107,16 @@ function MOTab({ month, categoryTab, onCategoryChange }: MOTabProps) {
     loadData();
   };
 
+  const handleWriteOff = async (item: MOItem, writeOffData: WriteOffData) => {
+    await writeOffItem('mo', item.id, writeOffData);
+    loadData();
+  };
+
+  const handleViewMovements = (item: MOItem) => {
+    setSelectedItem(item);
+    setHistoryDrawerOpen(true);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -130,6 +146,17 @@ function MOTab({ month, categoryTab, onCategoryChange }: MOTabProps) {
         mode="edit"
         initialData={editingItem || undefined}
       />
+
+      {selectedItem && (
+        <MovementHistoryDrawer
+          open={historyDrawerOpen}
+          onClose={() => setHistoryDrawerOpen(false)}
+          itemId={selectedItem.id}
+          itemName={selectedItem.name}
+          itemType="mo"
+          onMovementChange={loadData}
+        />
+      )}
 
       <Tabs
         value={safeCategoryTab}
@@ -168,6 +195,8 @@ function MOTab({ month, categoryTab, onCategoryChange }: MOTabProps) {
               onRefresh={loadData}
               onAddItem={(subcategoryName, item) => handleAddItem(category.name, subcategoryName, item)}
               onEditItem={handleEditItem}
+              onWriteOff={handleWriteOff}
+              onViewMovements={handleViewMovements}
             />
           )}
         </Box>

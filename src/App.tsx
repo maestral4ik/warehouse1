@@ -74,7 +74,7 @@ function App() {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="xl" sx={{ mt: 3 }}>
+      <Container maxWidth={false} sx={{ mt: 3 }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: 'white', borderRadius: '8px 8px 0 0' }}>
           <Tabs
             value={tabValue}
