@@ -197,7 +197,7 @@ function MovementHistoryDrawer({
                   </TableCell>
                   <TableCell align="right">{movement.quantity}</TableCell>
                   <TableCell align="right">
-                    {movement.pricePerUnit !== undefined ? movement.pricePerUnit.toFixed(2) : '-'}
+                    {movement.pricePerUnit != null ? movement.pricePerUnit.toFixed(2) : '-'}
                   </TableCell>
                   <TableCell align="right">
                     {formatSum(movement.quantity, movement.pricePerUnit)}

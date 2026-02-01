@@ -1,37 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import { sparePartsData } from './data/sparePartsData';
-import { moData } from './data/moData';
-import { SparePartItem, MOItem, StockMovement } from './types';
-import { filterCategoriesByMonth, getCurrentMonth, calculateCurrentStock, calculateMonthlyBalance } from './services/inventoryFilter';
+import { initDatabase, getCategoriesWithItems, queryAll, queryOne, execute, saveDatabase } from './database';
+import { StockMovement } from './types';
+import { filterCategoriesByMonth, getCurrentMonth, calculateMonthlyBalance } from './services/inventoryFilter';
 
 const app = express();
 const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
-
-// Helper to find item in spare parts data
-function findSparePartById(itemId: string): SparePartItem | null {
-  for (const category of sparePartsData) {
-    for (const subcategory of category.subcategories) {
-      const item = subcategory.items.find(item => item.id === itemId);
-      if (item) return item;
-    }
-  }
-  return null;
-}
-
-// Helper to find item in MO data
-function findMOItemById(itemId: string): MOItem | null {
-  for (const category of moData) {
-    for (const subcategory of category.subcategories) {
-      const item = subcategory.items.find(item => item.id === itemId);
-      if (item) return item;
-    }
-  }
-  return null;
-}
 
 // Helper to sort movements by date descending
 function sortMovementsByDate(movements: StockMovement[]): StockMovement[] {
@@ -45,87 +22,75 @@ function sortMovementsByDate(movements: StockMovement[]): StockMovement[] {
 }
 
 // GET spare parts with optional month filter
-// Example: GET /api/spare-parts?month=2026-01
 app.get('/api/spare-parts', (req, res) => {
   const month = (req.query.month as string) || getCurrentMonth();
 
-  // Validate month format (YYYY-MM)
   if (!/^\d{4}-\d{2}$/.test(month)) {
     res.status(400).json({ error: 'Invalid month format. Use YYYY-MM' });
     return;
   }
 
-  const filtered = filterCategoriesByMonth(sparePartsData, month);
+  const categories = getCategoriesWithItems('spare_parts');
+  const filtered = filterCategoriesByMonth(categories as any, month);
+  res.json(filtered);
+});
+
+// GET MO items with optional month filter
+app.get('/api/mo', (req, res) => {
+  const month = (req.query.month as string) || getCurrentMonth();
+
+  if (!/^\d{4}-\d{2}$/.test(month)) {
+    res.status(400).json({ error: 'Invalid month format. Use YYYY-MM' });
+    return;
+  }
+
+  const categories = getCategoriesWithItems('mo');
+  const filtered = filterCategoriesByMonth(categories as any, month);
   res.json(filtered);
 });
 
 // GET unique suppliers from all items
 app.get('/api/suppliers', (req, res) => {
-  const suppliers = new Set<string>();
-
-  // Collect suppliers from spare parts
-  for (const category of sparePartsData) {
-    for (const subcategory of category.subcategories) {
-      for (const item of subcategory.items) {
-        if (item.supplier && item.supplier.trim()) {
-          suppliers.add(item.supplier.trim());
-        }
-      }
-    }
-  }
-
-  // Collect suppliers from MO items
-  for (const category of moData) {
-    for (const subcategory of category.subcategories) {
-      for (const item of subcategory.items) {
-        if (item.supplier && item.supplier.trim()) {
-          suppliers.add(item.supplier.trim());
-        }
-      }
-    }
-  }
-
-  // Return sorted array
-  res.json(Array.from(suppliers).sort());
+  const suppliers = queryAll<{ supplier: string }>(
+    `SELECT DISTINCT supplier FROM items WHERE supplier IS NOT NULL AND supplier != '' ORDER BY supplier`
+  );
+  res.json(suppliers.map(s => s.supplier));
 });
 
-// GET MO items with optional month filter
-// Example: GET /api/mo?month=2026-01
-app.get('/api/mo', (req, res) => {
-  const month = (req.query.month as string) || getCurrentMonth();
-
-  // Validate month format (YYYY-MM)
-  if (!/^\d{4}-\d{2}$/.test(month)) {
-    res.status(400).json({ error: 'Invalid month format. Use YYYY-MM' });
-    return;
-  }
-
-  const filtered = filterCategoriesByMonth(moData, month);
-  res.json(filtered);
-});
-
-// === MOVEMENT ROUTES (defined before :id routes to ensure correct matching) ===
+// === MOVEMENT ROUTES ===
 
 // GET movements for spare part
 app.get('/api/spare-parts/:itemId/movements', (req, res) => {
   const { itemId } = req.params;
-  const item = findSparePartById(itemId);
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [itemId]);
   if (!item) {
     res.status(404).json({ error: 'Item not found' });
     return;
   }
-  res.json(sortMovementsByDate(item.movements || []));
+
+  const movements = queryAll<StockMovement>(
+    `SELECT id, date, type, quantity, price_per_unit as pricePerUnit, supplier, ttn_number as ttnNumber, notes
+     FROM movements WHERE item_id = ?`,
+    [itemId]
+  );
+  res.json(sortMovementsByDate(movements));
 });
 
 // GET movements for MO item
 app.get('/api/mo/:itemId/movements', (req, res) => {
   const { itemId } = req.params;
-  const item = findMOItemById(itemId);
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [itemId]);
   if (!item) {
     res.status(404).json({ error: 'Item not found' });
     return;
   }
-  res.json(sortMovementsByDate(item.movements || []));
+
+  const movements = queryAll<StockMovement>(
+    `SELECT id, date, type, quantity, price_per_unit as pricePerUnit, supplier, ttn_number as ttnNumber, notes
+     FROM movements WHERE item_id = ?`,
+    [itemId]
+  );
+  res.json(sortMovementsByDate(movements));
 });
 
 // POST create movement for spare part
@@ -133,7 +98,7 @@ app.post('/api/spare-parts/:itemId/movements', (req, res) => {
   const { itemId } = req.params;
   const movementData = req.body as Omit<StockMovement, 'id'>;
 
-  const item = findSparePartById(itemId);
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [itemId]);
   if (!item) {
     res.status(404).json({ error: 'Item not found' });
     return;
@@ -144,13 +109,24 @@ app.post('/api/spare-parts/:itemId/movements', (req, res) => {
     return;
   }
 
-  const newMovement: StockMovement = {
-    id: `m-${Date.now()}`,
-    ...movementData,
-  };
+  const newId = `m-${Date.now()}`;
+  execute(
+    `INSERT INTO movements (id, item_id, date, type, quantity, price_per_unit, supplier, ttn_number, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      newId,
+      itemId,
+      movementData.date,
+      movementData.type,
+      movementData.quantity,
+      movementData.pricePerUnit || null,
+      movementData.supplier || null,
+      movementData.ttnNumber || null,
+      movementData.notes || null
+    ]
+  );
 
-  item.movements.push(newMovement);
-  res.status(201).json(newMovement);
+  res.status(201).json({ id: newId, ...movementData });
 });
 
 // POST create movement for MO item
@@ -158,7 +134,7 @@ app.post('/api/mo/:itemId/movements', (req, res) => {
   const { itemId } = req.params;
   const movementData = req.body as Omit<StockMovement, 'id'>;
 
-  const item = findMOItemById(itemId);
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [itemId]);
   if (!item) {
     res.status(404).json({ error: 'Item not found' });
     return;
@@ -169,13 +145,24 @@ app.post('/api/mo/:itemId/movements', (req, res) => {
     return;
   }
 
-  const newMovement: StockMovement = {
-    id: `m-${Date.now()}`,
-    ...movementData,
-  };
+  const newId = `m-${Date.now()}`;
+  execute(
+    `INSERT INTO movements (id, item_id, date, type, quantity, price_per_unit, supplier, ttn_number, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      newId,
+      itemId,
+      movementData.date,
+      movementData.type,
+      movementData.quantity,
+      movementData.pricePerUnit || null,
+      movementData.supplier || null,
+      movementData.ttnNumber || null,
+      movementData.notes || null
+    ]
+  );
 
-  item.movements.push(newMovement);
-  res.status(201).json(newMovement);
+  res.status(201).json({ id: newId, ...movementData });
 });
 
 // PUT update movement for spare part
@@ -183,20 +170,43 @@ app.put('/api/spare-parts/:itemId/movements/:movementId', (req, res) => {
   const { itemId, movementId } = req.params;
   const updates = req.body as Partial<StockMovement>;
 
-  const item = findSparePartById(itemId);
-  if (!item) {
-    res.status(404).json({ error: 'Item not found' });
-    return;
-  }
-
-  const movementIndex = item.movements.findIndex((m: StockMovement) => m.id === movementId);
-  if (movementIndex === -1) {
+  const movement = queryOne<StockMovement>(
+    `SELECT id FROM movements WHERE id = ? AND item_id = ?`,
+    [movementId, itemId]
+  );
+  if (!movement) {
     res.status(404).json({ error: 'Movement not found' });
     return;
   }
 
-  item.movements[movementIndex] = { ...item.movements[movementIndex], ...updates, id: movementId };
-  res.json(item.movements[movementIndex]);
+  execute(
+    `UPDATE movements SET
+      date = COALESCE(?, date),
+      type = COALESCE(?, type),
+      quantity = COALESCE(?, quantity),
+      price_per_unit = COALESCE(?, price_per_unit),
+      supplier = COALESCE(?, supplier),
+      ttn_number = COALESCE(?, ttn_number),
+      notes = COALESCE(?, notes)
+     WHERE id = ?`,
+    [
+      updates.date,
+      updates.type,
+      updates.quantity,
+      updates.pricePerUnit,
+      updates.supplier,
+      updates.ttnNumber,
+      updates.notes,
+      movementId
+    ]
+  );
+
+  const updated = queryOne<StockMovement>(
+    `SELECT id, date, type, quantity, price_per_unit as pricePerUnit, supplier, ttn_number as ttnNumber, notes
+     FROM movements WHERE id = ?`,
+    [movementId]
+  );
+  res.json(updated);
 });
 
 // PUT update movement for MO item
@@ -204,39 +214,59 @@ app.put('/api/mo/:itemId/movements/:movementId', (req, res) => {
   const { itemId, movementId } = req.params;
   const updates = req.body as Partial<StockMovement>;
 
-  const item = findMOItemById(itemId);
-  if (!item) {
-    res.status(404).json({ error: 'Item not found' });
-    return;
-  }
-
-  const movementIndex = item.movements.findIndex((m: StockMovement) => m.id === movementId);
-  if (movementIndex === -1) {
+  const movement = queryOne<StockMovement>(
+    `SELECT id FROM movements WHERE id = ? AND item_id = ?`,
+    [movementId, itemId]
+  );
+  if (!movement) {
     res.status(404).json({ error: 'Movement not found' });
     return;
   }
 
-  item.movements[movementIndex] = { ...item.movements[movementIndex], ...updates, id: movementId };
-  res.json(item.movements[movementIndex]);
+  execute(
+    `UPDATE movements SET
+      date = COALESCE(?, date),
+      type = COALESCE(?, type),
+      quantity = COALESCE(?, quantity),
+      price_per_unit = COALESCE(?, price_per_unit),
+      supplier = COALESCE(?, supplier),
+      ttn_number = COALESCE(?, ttn_number),
+      notes = COALESCE(?, notes)
+     WHERE id = ?`,
+    [
+      updates.date,
+      updates.type,
+      updates.quantity,
+      updates.pricePerUnit,
+      updates.supplier,
+      updates.ttnNumber,
+      updates.notes,
+      movementId
+    ]
+  );
+
+  const updated = queryOne<StockMovement>(
+    `SELECT id, date, type, quantity, price_per_unit as pricePerUnit, supplier, ttn_number as ttnNumber, notes
+     FROM movements WHERE id = ?`,
+    [movementId]
+  );
+  res.json(updated);
 });
 
 // DELETE movement for spare part
 app.delete('/api/spare-parts/:itemId/movements/:movementId', (req, res) => {
   const { itemId, movementId } = req.params;
 
-  const item = findSparePartById(itemId);
-  if (!item) {
-    res.status(404).json({ error: 'Item not found' });
-    return;
-  }
-
-  const movementIndex = item.movements.findIndex((m: StockMovement) => m.id === movementId);
-  if (movementIndex === -1) {
+  const movement = queryOne<{ id: string }>(
+    `SELECT id FROM movements WHERE id = ? AND item_id = ?`,
+    [movementId, itemId]
+  );
+  if (!movement) {
     res.status(404).json({ error: 'Movement not found' });
     return;
   }
 
-  item.movements.splice(movementIndex, 1);
+  execute(`DELETE FROM movements WHERE id = ?`, [movementId]);
   res.json({ success: true, message: 'Movement deleted' });
 });
 
@@ -244,121 +274,161 @@ app.delete('/api/spare-parts/:itemId/movements/:movementId', (req, res) => {
 app.delete('/api/mo/:itemId/movements/:movementId', (req, res) => {
   const { itemId, movementId } = req.params;
 
-  const item = findMOItemById(itemId);
-  if (!item) {
-    res.status(404).json({ error: 'Item not found' });
-    return;
-  }
-
-  const movementIndex = item.movements.findIndex((m: StockMovement) => m.id === movementId);
-  if (movementIndex === -1) {
+  const movement = queryOne<{ id: string }>(
+    `SELECT id FROM movements WHERE id = ? AND item_id = ?`,
+    [movementId, itemId]
+  );
+  if (!movement) {
     res.status(404).json({ error: 'Movement not found' });
     return;
   }
 
-  item.movements.splice(movementIndex, 1);
+  execute(`DELETE FROM movements WHERE id = ?`, [movementId]);
   res.json({ success: true, message: 'Movement deleted' });
 });
 
-// === END MOVEMENT ROUTES ===
+// === ITEM ROUTES ===
 
 // DELETE spare part by ID
 app.delete('/api/spare-parts/:id', (req, res) => {
   const { id } = req.params;
 
-  for (const category of sparePartsData) {
-    for (const subcategory of category.subcategories) {
-      const index = subcategory.items.findIndex(item => item.id === id);
-      if (index !== -1) {
-        subcategory.items.splice(index, 1);
-        res.json({ success: true, message: 'Item deleted' });
-        return;
-      }
-    }
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  if (!item) {
+    res.status(404).json({ success: false, message: 'Item not found' });
+    return;
   }
 
-  res.status(404).json({ success: false, message: 'Item not found' });
+  execute(`DELETE FROM movements WHERE item_id = ?`, [id]);
+  execute(`DELETE FROM items WHERE id = ?`, [id]);
+  res.json({ success: true, message: 'Item deleted' });
 });
 
 // DELETE MO item by ID
 app.delete('/api/mo/:id', (req, res) => {
   const { id } = req.params;
 
-  for (const category of moData) {
-    for (const subcategory of category.subcategories) {
-      const index = subcategory.items.findIndex(item => item.id === id);
-      if (index !== -1) {
-        subcategory.items.splice(index, 1);
-        res.json({ success: true, message: 'Item deleted' });
-        return;
-      }
-    }
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  if (!item) {
+    res.status(404).json({ success: false, message: 'Item not found' });
+    return;
   }
 
-  res.status(404).json({ success: false, message: 'Item not found' });
+  execute(`DELETE FROM movements WHERE item_id = ?`, [id]);
+  execute(`DELETE FROM items WHERE id = ?`, [id]);
+  res.json({ success: true, message: 'Item deleted' });
 });
 
 // UPDATE spare part by ID
 app.put('/api/spare-parts/:id', (req, res) => {
   const { id } = req.params;
-  const updates: Partial<SparePartItem> = req.body;
+  const updates = req.body;
 
-  for (const category of sparePartsData) {
-    for (const subcategory of category.subcategories) {
-      const item = subcategory.items.find(item => item.id === id);
-      if (item) {
-        Object.assign(item, updates);
-        res.json({ success: true, item });
-        return;
-      }
-    }
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  if (!item) {
+    res.status(404).json({ success: false, message: 'Item not found' });
+    return;
   }
 
-  res.status(404).json({ success: false, message: 'Item not found' });
+  execute(
+    `UPDATE items SET
+      name = COALESCE(?, name),
+      quantity = COALESCE(?, quantity),
+      unit = COALESCE(?, unit),
+      price = COALESCE(?, price),
+      supplier = COALESCE(?, supplier),
+      ttn_number = COALESCE(?, ttn_number),
+      status = COALESCE(?, status)
+     WHERE id = ?`,
+    [
+      updates.name,
+      updates.quantity,
+      updates.unit,
+      updates.price,
+      updates.supplier,
+      updates.ttnNumber,
+      updates.status,
+      id
+    ]
+  );
+
+  const updated = queryOne(`SELECT * FROM items WHERE id = ?`, [id]);
+  res.json({ success: true, item: updated });
 });
 
 // UPDATE MO item by ID
 app.put('/api/mo/:id', (req, res) => {
   const { id } = req.params;
-  const updates: Partial<MOItem> = req.body;
+  const updates = req.body;
 
-  for (const category of moData) {
-    for (const subcategory of category.subcategories) {
-      const item = subcategory.items.find(item => item.id === id);
-      if (item) {
-        Object.assign(item, updates);
-        res.json({ success: true, item });
-        return;
-      }
-    }
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  if (!item) {
+    res.status(404).json({ success: false, message: 'Item not found' });
+    return;
   }
 
-  res.status(404).json({ success: false, message: 'Item not found' });
+  execute(
+    `UPDATE items SET
+      name = COALESCE(?, name),
+      quantity = COALESCE(?, quantity),
+      unit = COALESCE(?, unit),
+      price = COALESCE(?, price),
+      supplier = COALESCE(?, supplier),
+      ttn_number = COALESCE(?, ttn_number),
+      status = COALESCE(?, status)
+     WHERE id = ?`,
+    [
+      updates.name,
+      updates.quantity,
+      updates.unit,
+      updates.price,
+      updates.supplier,
+      updates.ttnNumber,
+      updates.status,
+      id
+    ]
+  );
+
+  const updated = queryOne(`SELECT * FROM items WHERE id = ?`, [id]);
+  res.json({ success: true, item: updated });
 });
 
 // CREATE spare part
 app.post('/api/spare-parts', (req, res) => {
   const { categoryName, subcategoryName, item } = req.body;
 
-  const category = sparePartsData.find(c => c.name === categoryName);
-  if (!category) {
-    res.status(404).json({ success: false, message: 'Category not found' });
-    return;
-  }
+  // Find subcategory
+  const subcategory = queryOne<{ id: number }>(
+    `SELECT s.id FROM subcategories s
+     JOIN categories c ON s.category_id = c.id
+     WHERE c.name = ? AND c.type = 'spare_parts' AND s.name = ?`,
+    [categoryName, subcategoryName]
+  );
 
-  const subcategory = category.subcategories.find(s => s.name === subcategoryName);
   if (!subcategory) {
-    res.status(404).json({ success: false, message: 'Subcategory not found' });
+    res.status(404).json({ success: false, message: 'Category or subcategory not found' });
     return;
   }
 
-  const newItem: SparePartItem = {
-    id: `sp-${Date.now()}`,
-    movements: [],
-    ...item,
-  };
+  const newId = `sp-${Date.now()}`;
+  execute(
+    `INSERT INTO items (id, name, quantity, unit, price, supplier, ttn_number, last_movement_date, status, subcategory_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      newId,
+      item.name,
+      item.quantity || 0,
+      item.unit || 'pcs',
+      item.price || 0,
+      item.supplier || null,
+      item.ttnNumber || null,
+      item.lastMovementDate || null,
+      item.status || 'in stock',
+      subcategory.id
+    ]
+  );
 
-  subcategory.items.push(newItem);
+  const newItem = queryOne(`SELECT * FROM items WHERE id = ?`, [newId]);
   res.status(201).json({ success: true, item: newItem });
 });
 
@@ -366,25 +436,38 @@ app.post('/api/spare-parts', (req, res) => {
 app.post('/api/mo', (req, res) => {
   const { categoryName, subcategoryName, item } = req.body;
 
-  const category = moData.find(c => c.name === categoryName);
-  if (!category) {
-    res.status(404).json({ success: false, message: 'Category not found' });
-    return;
-  }
+  // Find subcategory
+  const subcategory = queryOne<{ id: number }>(
+    `SELECT s.id FROM subcategories s
+     JOIN categories c ON s.category_id = c.id
+     WHERE c.name = ? AND c.type = 'mo' AND s.name = ?`,
+    [categoryName, subcategoryName]
+  );
 
-  const subcategory = category.subcategories.find(s => s.name === subcategoryName);
   if (!subcategory) {
-    res.status(404).json({ success: false, message: 'Subcategory not found' });
+    res.status(404).json({ success: false, message: 'Category or subcategory not found' });
     return;
   }
 
-  const newItem: MOItem = {
-    id: `mo-${Date.now()}`,
-    movements: [],
-    ...item,
-  };
+  const newId = `mo-${Date.now()}`;
+  execute(
+    `INSERT INTO items (id, name, quantity, unit, price, supplier, ttn_number, last_movement_date, status, subcategory_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      newId,
+      item.name,
+      item.quantity || 0,
+      item.unit || 'шт',
+      item.price || 0,
+      item.supplier || null,
+      item.ttnNumber || null,
+      item.lastUseDate || null,
+      item.status || 'in stock',
+      subcategory.id
+    ]
+  );
 
-  subcategory.items.push(newItem);
+  const newItem = queryOne(`SELECT * FROM items WHERE id = ?`, [newId]);
   res.status(201).json({ success: true, item: newItem });
 });
 
@@ -398,7 +481,28 @@ app.post('/api/spare-parts/:id/write-off', (req, res) => {
     return;
   }
 
-  // Generate date for the movement (last day of selected month or today)
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  if (!item) {
+    res.status(404).json({ success: false, message: 'Item not found' });
+    return;
+  }
+
+  // Get movements for balance calculation
+  const movements = queryAll<StockMovement>(
+    `SELECT id, date, type, quantity FROM movements WHERE item_id = ?`,
+    [id]
+  );
+
+  const targetMonth = month || getCurrentMonth();
+  const balance = calculateMonthlyBalance(movements, targetMonth);
+  const availableQty = balance.openingQty + balance.incomingQty - balance.issuedQty;
+
+  if (quantity > availableQty) {
+    res.status(400).json({ success: false, message: `Write-off quantity exceeds available quantity (${availableQty})` });
+    return;
+  }
+
+  // Generate date for the movement
   let dateStr: string;
   if (month && /^\d{4}-\d{2}$/.test(month)) {
     const [year, monthNum] = month.split('-').map(Number);
@@ -409,37 +513,13 @@ app.post('/api/spare-parts/:id/write-off', (req, res) => {
     dateStr = today.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
   }
 
-  for (const category of sparePartsData) {
-    for (const subcategory of category.subcategories) {
-      const item = subcategory.items.find(item => item.id === id);
-      if (item) {
-        // Calculate available stock up to the selected month
-        const targetMonth = month || getCurrentMonth();
-        const balance = calculateMonthlyBalance(item.movements, targetMonth);
-        const availableQty = balance.openingQty + balance.incomingQty - balance.issuedQty;
+  const newMovementId = `m-${Date.now()}`;
+  execute(
+    `INSERT INTO movements (id, item_id, date, type, quantity, notes) VALUES (?, ?, ?, ?, ?, ?)`,
+    [newMovementId, id, dateStr, 'outgoing', quantity, notes || 'Списание']
+  );
 
-        if (quantity > availableQty) {
-          res.status(400).json({ success: false, message: `Write-off quantity exceeds available quantity (${availableQty})` });
-          return;
-        }
-
-        // Add outgoing movement for write-off
-        const movement = {
-          id: `m-${Date.now()}`,
-          date: dateStr,
-          type: 'outgoing' as const,
-          quantity,
-          notes: notes || 'Списание',
-        };
-        item.movements.push(movement);
-
-        res.json({ success: true, item });
-        return;
-      }
-    }
-  }
-
-  res.status(404).json({ success: false, message: 'Item not found' });
+  res.json({ success: true, item: queryOne(`SELECT * FROM items WHERE id = ?`, [id]) });
 });
 
 // WRITE-OFF MO item by ID
@@ -452,7 +532,28 @@ app.post('/api/mo/:id/write-off', (req, res) => {
     return;
   }
 
-  // Generate date for the movement (last day of selected month or today)
+  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  if (!item) {
+    res.status(404).json({ success: false, message: 'Item not found' });
+    return;
+  }
+
+  // Get movements for balance calculation
+  const movements = queryAll<StockMovement>(
+    `SELECT id, date, type, quantity FROM movements WHERE item_id = ?`,
+    [id]
+  );
+
+  const targetMonth = month || getCurrentMonth();
+  const balance = calculateMonthlyBalance(movements, targetMonth);
+  const availableQty = balance.openingQty + balance.incomingQty - balance.issuedQty;
+
+  if (quantity > availableQty) {
+    res.status(400).json({ success: false, message: `Write-off quantity exceeds available quantity (${availableQty})` });
+    return;
+  }
+
+  // Generate date for the movement
   let dateStr: string;
   if (month && /^\d{4}-\d{2}$/.test(month)) {
     const [year, monthNum] = month.split('-').map(Number);
@@ -463,39 +564,24 @@ app.post('/api/mo/:id/write-off', (req, res) => {
     dateStr = today.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
   }
 
-  for (const category of moData) {
-    for (const subcategory of category.subcategories) {
-      const item = subcategory.items.find(item => item.id === id);
-      if (item) {
-        // Calculate available stock up to the selected month
-        const targetMonth = month || getCurrentMonth();
-        const balance = calculateMonthlyBalance(item.movements, targetMonth);
-        const availableQty = balance.openingQty + balance.incomingQty - balance.issuedQty;
+  const newMovementId = `m-${Date.now()}`;
+  execute(
+    `INSERT INTO movements (id, item_id, date, type, quantity, notes) VALUES (?, ?, ?, ?, ?, ?)`,
+    [newMovementId, id, dateStr, 'outgoing', quantity, notes || 'Списание']
+  );
 
-        if (quantity > availableQty) {
-          res.status(400).json({ success: false, message: `Write-off quantity exceeds available quantity (${availableQty})` });
-          return;
-        }
-
-        // Add outgoing movement for write-off
-        const movement = {
-          id: `m-${Date.now()}`,
-          date: dateStr,
-          type: 'outgoing' as const,
-          quantity,
-          notes: notes || 'Списание',
-        };
-        item.movements.push(movement);
-
-        res.json({ success: true, item });
-        return;
-      }
-    }
-  }
-
-  res.status(404).json({ success: false, message: 'Item not found' });
+  res.json({ success: true, item: queryOne(`SELECT * FROM items WHERE id = ?`, [id]) });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Initialize database and start server
+initDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log('Database initialized successfully');
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+  });
