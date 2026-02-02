@@ -15,6 +15,11 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -77,6 +82,9 @@ function MovementHistoryDrawer({
   const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
   const [editingMovement, setEditingMovement] = useState<StockMovement | undefined>();
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [movementToDelete, setMovementToDelete] = useState<StockMovement | null>(null);
+
   const loadMovements = async () => {
     if (!itemId) return;
     setLoading(true);
@@ -104,20 +112,40 @@ function MovementHistoryDrawer({
   };
 
   const handleEditClick = (movement: StockMovement) => {
+    // Only allow editing outgoing movements
+    if (movement.type !== 'outgoing') return;
     setDialogMode('edit');
     setEditingMovement(movement);
     setDialogOpen(true);
   };
 
-  const handleDeleteClick = async (movementId: string) => {
-    if (!confirm('Удалить это движение?')) return;
+  const handleDeleteClick = (movement: StockMovement) => {
+    // Don't allow deleting incoming movements
+    if (movement.type === 'incoming') {
+      setError('Нельзя удалить поступление. Измените количество через редактирование товара.');
+      return;
+    }
+    setMovementToDelete(movement);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!movementToDelete) return;
     try {
-      await deleteMovement(itemType, itemId, movementId);
+      await deleteMovement(itemType, itemId, movementToDelete.id);
       loadMovements();
       onMovementChange?.();
     } catch (err) {
       setError('Не удалось удалить движение');
+    } finally {
+      setDeleteDialogOpen(false);
+      setMovementToDelete(null);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setMovementToDelete(null);
   };
 
   const handleDialogSubmit = async (data: MovementFormData) => {
@@ -130,18 +158,13 @@ function MovementHistoryDrawer({
     onMovementChange?.();
   };
 
-  const formatSum = (qty: number, price?: number): string => {
-    if (price === undefined || price === null) return '-';
-    return (qty * price).toFixed(2);
-  };
-
   return (
     <Drawer
       anchor="right"
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { width: { xs: '100%', sm: 700, md: 900 }, p: 2 },
+        sx: { width: { xs: '100%', sm: 500, md: 600 }, p: 2 },
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -159,10 +182,10 @@ function MovementHistoryDrawer({
         onClick={handleAddClick}
         sx={{ mb: 2, alignSelf: 'flex-start' }}
       >
-        Добавить движение
+        Добавить выдачу
       </Button>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -178,11 +201,7 @@ function MovementHistoryDrawer({
                 <TableCell>Дата</TableCell>
                 <TableCell>Тип</TableCell>
                 <TableCell align="right">Кол-во</TableCell>
-                <TableCell align="right">Цена/ед</TableCell>
-                <TableCell align="right">Сумма</TableCell>
-                <TableCell>Поставщик</TableCell>
-                <TableCell>ТТН</TableCell>
-                <TableCell>Комментарий</TableCell>
+                <TableCell>Примечание</TableCell>
                 <TableCell align="center" sx={{ minWidth: 100 }}>Действия</TableCell>
               </TableRow>
             </TableHead>
@@ -198,31 +217,27 @@ function MovementHistoryDrawer({
                     />
                   </TableCell>
                   <TableCell align="right">{movement.quantity}</TableCell>
-                  <TableCell align="right">
-                    {movement.pricePerUnit != null ? movement.pricePerUnit.toFixed(2) : '-'}
-                  </TableCell>
-                  <TableCell align="right">
-                    {formatSum(movement.quantity, movement.pricePerUnit)}
-                  </TableCell>
-                  <TableCell>{movement.supplier || '-'}</TableCell>
-                  <TableCell>{movement.ttnNumber || '-'}</TableCell>
                   <TableCell>{movement.notes || '-'}</TableCell>
                   <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleEditClick(movement)}
-                      title="Редактировать"
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteClick(movement.id)}
-                      title="Удалить"
-                      color="error"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    {movement.type === 'outgoing' && (
+                      <>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditClick(movement)}
+                          title="Редактировать"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteClick(movement)}
+                          title="Удалить"
+                          color="error"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -239,6 +254,21 @@ function MovementHistoryDrawer({
         initialData={editingMovement}
         categoryName={categoryName}
       />
+
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Удаление движения</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Вы уверены, что хотите удалить это движение?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Отмена</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Drawer>
   );
 }

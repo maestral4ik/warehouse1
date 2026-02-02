@@ -8,20 +8,14 @@ import {
   TextField,
   Box,
   Alert,
-  Autocomplete,
-  CircularProgress,
   MenuItem,
 } from '@mui/material';
-import { StockMovement, MovementType, OUTGOING_REASONS, DEFAULT_OUTGOING_REASON } from '../types';
-import { fetchSuppliers } from '../api';
+import { StockMovement, OUTGOING_REASONS, DEFAULT_OUTGOING_REASON } from '../types';
 
 export interface MovementFormData {
   date: string;
-  type: MovementType;
+  type: 'outgoing';
   quantity: number;
-  pricePerUnit?: number;
-  supplier?: string;
-  ttnNumber?: string;
   notes?: string;
 }
 
@@ -33,11 +27,6 @@ interface MovementDialogProps {
   initialData?: StockMovement;
   categoryName?: string;
 }
-
-const movementTypes: { value: MovementType; label: string }[] = [
-  { value: 'incoming', label: 'Поступление' },
-  { value: 'outgoing', label: 'Выдача' },
-];
 
 // Convert DD.MM.YYYY to YYYY-MM-DD for input
 function toInputDate(dateStr: string): string {
@@ -57,17 +46,9 @@ function toDisplayDate(inputDate: string): string {
 
 function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, categoryName }: MovementDialogProps) {
   const [date, setDate] = useState('');
-  const [type, setType] = useState<MovementType>('incoming');
   const [quantity, setQuantity] = useState('');
-  const [pricePerUnit, setPricePerUnit] = useState('');
-  const [supplier, setSupplier] = useState('');
-  const [ttnNumber, setTtnNumber] = useState('');
-  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [suppliers, setSuppliers] = useState<string[]>([]);
-  const [suppliersLoading, setSuppliersLoading] = useState(false);
   const [outgoingReason, setOutgoingReason] = useState('');
 
   const isEditMode = mode === 'edit';
@@ -76,26 +57,11 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
   const hasMultipleReasons = reasons.length > 1;
 
   useEffect(() => {
-    if (open) {
-      setSuppliersLoading(true);
-      fetchSuppliers()
-        .then(setSuppliers)
-        .catch(() => setSuppliers([]))
-        .finally(() => setSuppliersLoading(false));
-    }
-  }, [open]);
-
-  useEffect(() => {
     if (open && isEditMode && initialData) {
       setDate(toInputDate(initialData.date));
-      setType(initialData.type);
       setQuantity(String(initialData.quantity));
-      setPricePerUnit(initialData.pricePerUnit ? String(initialData.pricePerUnit) : '');
-      setSupplier(initialData.supplier || '');
-      setTtnNumber(initialData.ttnNumber || '');
-      setNotes(initialData.notes || '');
       // If editing outgoing movement, try to match notes to a reason
-      if (initialData.type === 'outgoing' && initialData.notes) {
+      if (initialData.notes) {
         if (reasons.includes(initialData.notes)) {
           setOutgoingReason(initialData.notes);
         }
@@ -108,12 +74,7 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
   const resetForm = () => {
     const today = new Date().toISOString().split('T')[0];
     setDate(today);
-    setType('incoming');
     setQuantity('');
-    setPricePerUnit('');
-    setSupplier('');
-    setTtnNumber('');
-    setNotes('');
     setOutgoingReason('');
     setError(null);
   };
@@ -124,13 +85,13 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
   };
 
   const handleSubmit = async () => {
-    if (!date || !type || !quantity) {
-      setError('Заполните обязательные поля: дата, тип, количество');
+    if (!date || !quantity) {
+      setError('Заполните обязательные поля: дата, количество');
       return;
     }
 
-    // For outgoing movements with multiple reasons, require a reason selection
-    if (type === 'outgoing' && hasMultipleReasons && !outgoingReason) {
+    // For movements with multiple reasons, require a reason selection
+    if (hasMultipleReasons && !outgoingReason) {
       setError('Выберите причину выдачи');
       return;
     }
@@ -141,36 +102,17 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
       return;
     }
 
-    let price: number | undefined;
-    if (pricePerUnit) {
-      price = parseFloat(pricePerUnit);
-      if (isNaN(price) || price < 0) {
-        setError('Цена должна быть положительным числом');
-        return;
-      }
-    }
-
     setLoading(true);
     setError(null);
 
-    // Determine final notes value: for outgoing, use reason (single or selected), append any additional notes
-    let finalNotes: string | undefined;
-    if (type === 'outgoing') {
-      const reason = hasMultipleReasons ? outgoingReason : reasons[0];
-      finalNotes = reason;
-    } else {
-      finalNotes = notes.trim() || undefined;
-    }
+    const reason = hasMultipleReasons ? outgoingReason : reasons[0];
 
     try {
       await onSubmit({
         date: toDisplayDate(date),
-        type,
+        type: 'outgoing',
         quantity: qty,
-        pricePerUnit: price,
-        supplier: supplier.trim() || undefined,
-        ttnNumber: ttnNumber.trim() || undefined,
-        notes: finalNotes,
+        notes: reason,
       });
       handleClose();
     } catch (err) {
@@ -183,7 +125,7 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        {isEditMode ? 'Редактировать движение' : 'Добавить движение'}
+        {isEditMode ? 'Редактировать выдачу' : 'Добавить выдачу'}
       </DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
@@ -200,21 +142,16 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
           />
 
           <TextField
-            select
-            label="Тип движения"
-            value={type}
-            onChange={(e) => setType(e.target.value as MovementType)}
+            label="Количество"
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
             required
             fullWidth
-          >
-            {movementTypes.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
+            inputProps={{ min: 1 }}
+          />
 
-          {type === 'outgoing' && hasMultipleReasons && (
+          {hasMultipleReasons ? (
             <TextField
               select
               label="Причина выдачи"
@@ -229,9 +166,7 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
                 </MenuItem>
               ))}
             </TextField>
-          )}
-
-          {type === 'outgoing' && !hasMultipleReasons && (
+          ) : (
             <TextField
               label="Причина выдачи"
               value={reasons[0]}
@@ -239,66 +174,6 @@ function MovementDialog({ open, onClose, onSubmit, mode = 'add', initialData, ca
               fullWidth
             />
           )}
-
-          <TextField
-            label="Количество"
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            required
-            fullWidth
-            inputProps={{ min: 1 }}
-          />
-
-          <TextField
-            label="Цена за единицу"
-            type="number"
-            value={pricePerUnit}
-            onChange={(e) => setPricePerUnit(e.target.value)}
-            fullWidth
-            inputProps={{ min: 0, step: 0.01 }}
-          />
-
-          <Autocomplete
-            freeSolo
-            options={suppliers}
-            value={supplier}
-            onInputChange={(_, newValue) => setSupplier(newValue)}
-            loading={suppliersLoading}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Поставщик"
-                placeholder="Выберите или введите нового"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {suppliersLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
-          />
-
-          <TextField
-            label="Номер ТТН"
-            value={ttnNumber}
-            onChange={(e) => setTtnNumber(e.target.value)}
-            fullWidth
-            placeholder="ТТН-2026-001"
-          />
-
-          <TextField
-            label="Комментарий"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            fullWidth
-            multiline
-            rows={2}
-          />
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
