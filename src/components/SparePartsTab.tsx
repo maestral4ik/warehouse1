@@ -155,6 +155,7 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
           itemName={selectedItem.name}
           itemType="spare-parts"
           onMovementChange={loadData}
+          categoryName={data[safeCategoryTab]?.name}
         />
       )}
 
@@ -192,6 +193,7 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
               columns={sparePartsColumns}
               statusField="status"
               selectedMonth={month}
+              categoryName={category.name}
               onRefresh={loadData}
               onAddItem={(subcategoryName, item) => handleAddItem(category.name, subcategoryName, item)}
               onEditItem={handleEditItem}

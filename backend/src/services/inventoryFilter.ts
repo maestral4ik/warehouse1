@@ -227,6 +227,7 @@ export function getItemStatusForMonth<T extends SparePartItem | MOItem>(
 
 /**
  * Filter categories by month and calculate rolling balances
+ * Note: Empty categories/subcategories are preserved so users can add items to them
  */
 export function filterCategoriesByMonth<T extends SparePartItem | MOItem>(
   categories: Category<T>[],
@@ -250,8 +251,8 @@ export function filterCategoriesByMonth<T extends SparePartItem | MOItem>(
             endingQty: balance.endingQty,
           };
         }),
-    })).filter(sub => sub.items.length > 0),
-  })).filter(cat => cat.subcategories.length > 0);
+    })),
+  }));
 }
 
 /**

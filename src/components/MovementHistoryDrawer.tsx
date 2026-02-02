@@ -31,6 +31,7 @@ interface MovementHistoryDrawerProps {
   itemName: string;
   itemType: 'spare-parts' | 'mo';
   onMovementChange?: () => void;
+  categoryName?: string;
 }
 
 function getTypeLabel(type: MovementType): string {
@@ -66,6 +67,7 @@ function MovementHistoryDrawer({
   itemName,
   itemType,
   onMovementChange,
+  categoryName,
 }: MovementHistoryDrawerProps) {
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [loading, setLoading] = useState(false);
@@ -235,6 +237,7 @@ function MovementHistoryDrawer({
         onSubmit={handleDialogSubmit}
         mode={dialogMode}
         initialData={editingMovement}
+        categoryName={categoryName}
       />
     </Drawer>
   );

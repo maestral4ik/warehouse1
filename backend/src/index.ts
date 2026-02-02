@@ -126,6 +126,9 @@ app.post('/api/spare-parts/:itemId/movements', (req, res) => {
     ]
   );
 
+  // Recalculate item quantity from all movements
+  recalculateItemQuantity(itemId);
+
   res.status(201).json({ id: newId, ...movementData });
 });
 
@@ -162,8 +165,41 @@ app.post('/api/mo/:itemId/movements', (req, res) => {
     ]
   );
 
+  // Recalculate item quantity from all movements
+  recalculateItemQuantity(itemId);
+
   res.status(201).json({ id: newId, ...movementData });
 });
+
+// Helper to recalculate item quantity from movements
+function recalculateItemQuantity(itemId: string): number {
+  const movements = queryAll<{ type: string; quantity: number }>(
+    `SELECT type, quantity FROM movements WHERE item_id = ?`,
+    [itemId]
+  );
+
+  let total = 0;
+  for (const m of movements) {
+    if (m.type === 'incoming') {
+      total += m.quantity;
+    } else if (m.type === 'outgoing') {
+      total -= m.quantity;
+    }
+  }
+
+  const finalQty = Math.max(0, total);
+  execute(`UPDATE items SET quantity = ? WHERE id = ?`, [finalQty, itemId]);
+  return finalQty;
+}
+
+// Recalculate ALL items' quantities from their movements (run at startup)
+function recalculateAllItemQuantities(): void {
+  const items = queryAll<{ id: string }>(`SELECT id FROM items`);
+  for (const item of items) {
+    recalculateItemQuantity(item.id);
+  }
+  console.log(`Recalculated quantities for ${items.length} items`);
+}
 
 // PUT update movement for spare part
 app.put('/api/spare-parts/:itemId/movements/:movementId', (req, res) => {
@@ -190,16 +226,19 @@ app.put('/api/spare-parts/:itemId/movements/:movementId', (req, res) => {
       notes = COALESCE(?, notes)
      WHERE id = ?`,
     [
-      updates.date,
-      updates.type,
-      updates.quantity,
-      updates.pricePerUnit,
-      updates.supplier,
-      updates.ttnNumber,
-      updates.notes,
+      updates.date ?? null,
+      updates.type ?? null,
+      updates.quantity ?? null,
+      updates.pricePerUnit ?? null,
+      updates.supplier ?? null,
+      updates.ttnNumber ?? null,
+      updates.notes ?? null,
       movementId
     ]
   );
+
+  // Recalculate item quantity from all movements
+  recalculateItemQuantity(itemId);
 
   const updated = queryOne<StockMovement>(
     `SELECT id, date, type, quantity, price_per_unit as pricePerUnit, supplier, ttn_number as ttnNumber, notes
@@ -234,16 +273,19 @@ app.put('/api/mo/:itemId/movements/:movementId', (req, res) => {
       notes = COALESCE(?, notes)
      WHERE id = ?`,
     [
-      updates.date,
-      updates.type,
-      updates.quantity,
-      updates.pricePerUnit,
-      updates.supplier,
-      updates.ttnNumber,
-      updates.notes,
+      updates.date ?? null,
+      updates.type ?? null,
+      updates.quantity ?? null,
+      updates.pricePerUnit ?? null,
+      updates.supplier ?? null,
+      updates.ttnNumber ?? null,
+      updates.notes ?? null,
       movementId
     ]
   );
+
+  // Recalculate item quantity from all movements
+  recalculateItemQuantity(itemId);
 
   const updated = queryOne<StockMovement>(
     `SELECT id, date, type, quantity, price_per_unit as pricePerUnit, supplier, ttn_number as ttnNumber, notes
@@ -267,6 +309,10 @@ app.delete('/api/spare-parts/:itemId/movements/:movementId', (req, res) => {
   }
 
   execute(`DELETE FROM movements WHERE id = ?`, [movementId]);
+
+  // Recalculate item quantity from remaining movements
+  recalculateItemQuantity(itemId);
+
   res.json({ success: true, message: 'Movement deleted' });
 });
 
@@ -284,6 +330,10 @@ app.delete('/api/mo/:itemId/movements/:movementId', (req, res) => {
   }
 
   execute(`DELETE FROM movements WHERE id = ?`, [movementId]);
+
+  // Recalculate item quantity from remaining movements
+  recalculateItemQuantity(itemId);
+
   res.json({ success: true, message: 'Movement deleted' });
 });
 
@@ -324,10 +374,51 @@ app.put('/api/spare-parts/:id', (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  const item = queryOne<{ id: string; quantity: number }>(`SELECT id, quantity FROM items WHERE id = ?`, [id]);
   if (!item) {
     res.status(404).json({ success: false, message: 'Item not found' });
     return;
+  }
+
+  // If quantity is being updated, adjust movements
+  if (updates.quantity !== undefined && updates.quantity !== item.quantity) {
+    const newQty = updates.quantity;
+
+    // Find the initial incoming movement
+    const initialMovement = queryOne<{ id: string; quantity: number }>(
+      `SELECT id, quantity FROM movements WHERE item_id = ? AND type = 'incoming' AND notes = 'Первоначальное поступление'`,
+      [id]
+    );
+
+    if (initialMovement) {
+      // Calculate current total from all movements
+      const currentTotal = recalculateItemQuantity(id);
+      // Calculate what the initial movement quantity should be
+      const diff = newQty - currentTotal;
+      const newInitialQty = initialMovement.quantity + diff;
+
+      if (newInitialQty >= 0) {
+        execute(`UPDATE movements SET quantity = ? WHERE id = ?`, [newInitialQty, initialMovement.id]);
+      }
+    } else {
+      // No initial movement found, create an adjustment movement
+      const currentTotal = recalculateItemQuantity(id);
+      const diff = newQty - currentTotal;
+
+      if (diff !== 0) {
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('ru-RU', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        }).replace(/\//g, '.');
+
+        const movementId = `m-${Date.now()}`;
+        execute(
+          `INSERT INTO movements (id, item_id, date, type, quantity, notes)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [movementId, id, dateStr, diff > 0 ? 'incoming' : 'outgoing', Math.abs(diff), 'Корректировка количества']
+        );
+      }
+    }
   }
 
   execute(
@@ -351,6 +442,9 @@ app.put('/api/spare-parts/:id', (req, res) => {
       id
     ]
   );
+
+  // Recalculate quantity from movements to ensure consistency
+  recalculateItemQuantity(id);
 
   const updated = queryOne(`SELECT * FROM items WHERE id = ?`, [id]);
   res.json({ success: true, item: updated });
@@ -361,10 +455,51 @@ app.put('/api/mo/:id', (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  const item = queryOne<{ id: string }>(`SELECT id FROM items WHERE id = ?`, [id]);
+  const item = queryOne<{ id: string; quantity: number }>(`SELECT id, quantity FROM items WHERE id = ?`, [id]);
   if (!item) {
     res.status(404).json({ success: false, message: 'Item not found' });
     return;
+  }
+
+  // If quantity is being updated, adjust movements
+  if (updates.quantity !== undefined && updates.quantity !== item.quantity) {
+    const newQty = updates.quantity;
+
+    // Find the initial incoming movement
+    const initialMovement = queryOne<{ id: string; quantity: number }>(
+      `SELECT id, quantity FROM movements WHERE item_id = ? AND type = 'incoming' AND notes = 'Первоначальное поступление'`,
+      [id]
+    );
+
+    if (initialMovement) {
+      // Calculate current total from all movements
+      const currentTotal = recalculateItemQuantity(id);
+      // Calculate what the initial movement quantity should be
+      const diff = newQty - currentTotal;
+      const newInitialQty = initialMovement.quantity + diff;
+
+      if (newInitialQty >= 0) {
+        execute(`UPDATE movements SET quantity = ? WHERE id = ?`, [newInitialQty, initialMovement.id]);
+      }
+    } else {
+      // No initial movement found, create an adjustment movement
+      const currentTotal = recalculateItemQuantity(id);
+      const diff = newQty - currentTotal;
+
+      if (diff !== 0) {
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('ru-RU', {
+          day: '2-digit', month: '2-digit', year: 'numeric'
+        }).replace(/\//g, '.');
+
+        const movementId = `m-${Date.now()}`;
+        execute(
+          `INSERT INTO movements (id, item_id, date, type, quantity, notes)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [movementId, id, dateStr, diff > 0 ? 'incoming' : 'outgoing', Math.abs(diff), 'Корректировка количества']
+        );
+      }
+    }
   }
 
   execute(
@@ -388,6 +523,9 @@ app.put('/api/mo/:id', (req, res) => {
       id
     ]
   );
+
+  // Recalculate quantity from movements to ensure consistency
+  recalculateItemQuantity(id);
 
   const updated = queryOne(`SELECT * FROM items WHERE id = ?`, [id]);
   res.json({ success: true, item: updated });
@@ -420,13 +558,38 @@ app.post('/api/spare-parts', (req, res) => {
       item.quantity || 0,
       item.unit || 'pcs',
       item.price || 0,
-      item.supplier || null,
-      item.ttnNumber || null,
-      item.lastMovementDate || null,
+      item.supplier || '',
+      item.ttnNumber || '',
+      item.lastMovementDate || '',
       item.status || 'in stock',
       subcategory.id
     ]
   );
+
+  // Create initial incoming movement if quantity > 0
+  if (item.quantity && item.quantity > 0) {
+    const movementId = `m-${Date.now()}`;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
+
+    execute(
+      `INSERT INTO movements (id, item_id, date, type, quantity, price_per_unit, supplier, ttn_number, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        movementId,
+        newId,
+        dateStr,
+        'incoming',
+        item.quantity,
+        item.price || 0,
+        item.supplier || '',
+        item.ttnNumber || '',
+        'Первоначальное поступление'
+      ]
+    );
+  }
 
   const newItem = queryOne(`SELECT * FROM items WHERE id = ?`, [newId]);
   res.status(201).json({ success: true, item: newItem });
@@ -459,13 +622,38 @@ app.post('/api/mo', (req, res) => {
       item.quantity || 0,
       item.unit || 'шт',
       item.price || 0,
-      item.supplier || null,
-      item.ttnNumber || null,
-      item.lastUseDate || null,
+      item.supplier || '',
+      item.ttnNumber || '',
+      item.lastUseDate || '',
       item.status || 'in stock',
       subcategory.id
     ]
   );
+
+  // Create initial incoming movement if quantity > 0
+  if (item.quantity && item.quantity > 0) {
+    const movementId = `m-${Date.now()}`;
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
+
+    execute(
+      `INSERT INTO movements (id, item_id, date, type, quantity, price_per_unit, supplier, ttn_number, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        movementId,
+        newId,
+        dateStr,
+        'incoming',
+        item.quantity,
+        item.price || 0,
+        item.supplier || '',
+        item.ttnNumber || '',
+        'Первоначальное поступление'
+      ]
+    );
+  }
 
   const newItem = queryOne(`SELECT * FROM items WHERE id = ?`, [newId]);
   res.status(201).json({ success: true, item: newItem });
@@ -502,15 +690,33 @@ app.post('/api/spare-parts/:id/write-off', (req, res) => {
     return;
   }
 
-  // Generate date for the movement
+  // Generate date for the movement based on smart logic
   let dateStr: string;
   if (month && /^\d{4}-\d{2}$/.test(month)) {
     const [year, monthNum] = month.split('-').map(Number);
-    const lastDay = new Date(year, monthNum, 0).getDate();
-    dateStr = `${String(lastDay).padStart(2, '0')}.${String(monthNum).padStart(2, '0')}.${year}`;
-  } else {
     const today = new Date();
-    dateStr = today.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1; // 1-indexed
+
+    if (year === currentYear && monthNum === currentMonth) {
+      // Current month → use today's date
+      dateStr = today.toLocaleDateString('ru-RU', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+      }).replace(/\//g, '.');
+    } else if (year < currentYear || (year === currentYear && monthNum < currentMonth)) {
+      // Previous month → use last day of that month
+      const lastDay = new Date(year, monthNum, 0).getDate();
+      dateStr = `${String(lastDay).padStart(2, '0')}.${String(monthNum).padStart(2, '0')}.${year}`;
+    } else {
+      // Future month → use first day of that month
+      dateStr = `01.${String(monthNum).padStart(2, '0')}.${year}`;
+    }
+  } else {
+    // No month provided → use today
+    const today = new Date();
+    dateStr = today.toLocaleDateString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
   }
 
   const newMovementId = `m-${Date.now()}`;
@@ -553,15 +759,33 @@ app.post('/api/mo/:id/write-off', (req, res) => {
     return;
   }
 
-  // Generate date for the movement
+  // Generate date for the movement based on smart logic
   let dateStr: string;
   if (month && /^\d{4}-\d{2}$/.test(month)) {
     const [year, monthNum] = month.split('-').map(Number);
-    const lastDay = new Date(year, monthNum, 0).getDate();
-    dateStr = `${String(lastDay).padStart(2, '0')}.${String(monthNum).padStart(2, '0')}.${year}`;
-  } else {
     const today = new Date();
-    dateStr = today.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1; // 1-indexed
+
+    if (year === currentYear && monthNum === currentMonth) {
+      // Current month → use today's date
+      dateStr = today.toLocaleDateString('ru-RU', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+      }).replace(/\//g, '.');
+    } else if (year < currentYear || (year === currentYear && monthNum < currentMonth)) {
+      // Previous month → use last day of that month
+      const lastDay = new Date(year, monthNum, 0).getDate();
+      dateStr = `${String(lastDay).padStart(2, '0')}.${String(monthNum).padStart(2, '0')}.${year}`;
+    } else {
+      // Future month → use first day of that month
+      dateStr = `01.${String(monthNum).padStart(2, '0')}.${year}`;
+    }
+  } else {
+    // No month provided → use today
+    const today = new Date();
+    dateStr = today.toLocaleDateString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }).replace(/\//g, '.');
   }
 
   const newMovementId = `m-${Date.now()}`;
@@ -576,6 +800,9 @@ app.post('/api/mo/:id/write-off', (req, res) => {
 // Initialize database and start server
 initDatabase()
   .then(() => {
+    // Recalculate all item quantities from movements at startup
+    recalculateAllItemQuantities();
+
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log('Database initialized successfully');

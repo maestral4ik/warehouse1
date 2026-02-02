@@ -9,7 +9,9 @@ import {
   Box,
   Alert,
   Typography,
+  MenuItem,
 } from '@mui/material';
+import { OUTGOING_REASONS, DEFAULT_OUTGOING_REASON } from '../types';
 
 export interface WriteOffData {
   quantity: number;
@@ -25,25 +27,29 @@ interface WriteOffDialogProps {
   maxQuantity: number;
   unit: string;
   month?: string;
+  categoryName?: string;
 }
 
-function WriteOffDialog({ open, onClose, onSubmit, itemName, maxQuantity, unit, month }: WriteOffDialogProps) {
+function WriteOffDialog({ open, onClose, onSubmit, itemName, maxQuantity, unit, month, categoryName }: WriteOffDialogProps) {
   const [quantity, setQuantity] = useState('');
-  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [outgoingReason, setOutgoingReason] = useState('');
+
+  const reasons = categoryName ? (OUTGOING_REASONS[categoryName] || [DEFAULT_OUTGOING_REASON]) : [DEFAULT_OUTGOING_REASON];
+  const hasMultipleReasons = reasons.length > 1;
 
   useEffect(() => {
     if (open) {
       setQuantity('');
-      setNotes('');
+      setOutgoingReason('');
       setError(null);
     }
   }, [open]);
 
   const handleClose = () => {
     setQuantity('');
-    setNotes('');
+    setOutgoingReason('');
     setError(null);
     onClose();
   };
@@ -66,13 +72,22 @@ function WriteOffDialog({ open, onClose, onSubmit, itemName, maxQuantity, unit, 
       return;
     }
 
+    // For multiple reasons, require selection
+    if (hasMultipleReasons && !outgoingReason) {
+      setError('Выберите причину списания');
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
+    // Determine final notes value: use reason (single or selected)
+    const reason = hasMultipleReasons ? outgoingReason : reasons[0];
 
     try {
       await onSubmit({
         quantity: qty,
-        notes: notes.trim() || undefined,
+        notes: reason,
         month,
       });
       handleClose();
@@ -109,15 +124,29 @@ function WriteOffDialog({ open, onClose, onSubmit, itemName, maxQuantity, unit, 
             helperText={`Максимум: ${maxQuantity} ${unit}`}
           />
 
-          <TextField
-            label="Примечание"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            fullWidth
-            multiline
-            rows={2}
-            placeholder="Причина списания (необязательно)"
-          />
+          {hasMultipleReasons ? (
+            <TextField
+              select
+              label="Причина списания"
+              value={outgoingReason}
+              onChange={(e) => setOutgoingReason(e.target.value)}
+              required
+              fullWidth
+            >
+              {reasons.map((reason) => (
+                <MenuItem key={reason} value={reason}>
+                  {reason}
+                </MenuItem>
+              ))}
+            </TextField>
+          ) : (
+            <TextField
+              label="Причина списания"
+              value={reasons[0]}
+              disabled
+              fullWidth
+            />
+          )}
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

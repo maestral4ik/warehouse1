@@ -67,6 +67,7 @@ interface CategoryTableProps<T extends Record<string, unknown>> {
   columns: ColumnConfig[];
   statusField: keyof T;
   selectedMonth?: string;
+  categoryName?: string;
   onRefresh?: () => void;
   onAddItem?: (subcategoryName: string, item: ItemFormData) => Promise<void>;
   onEditItem?: (item: T, subcategoryName: string) => void;
@@ -92,6 +93,7 @@ function CategoryTable<T extends Record<string, unknown>>({
   columns,
   statusField,
   selectedMonth,
+  categoryName,
   onRefresh,
   onAddItem,
   onEditItem,
@@ -345,6 +347,7 @@ function CategoryTable<T extends Record<string, unknown>>({
           maxQuantity={Number(writeOffItem.endingQty ?? writeOffItem.quantity) || 0}
           unit={String(writeOffItem.unit || 'шт')}
           month={selectedMonth}
+          categoryName={categoryName}
         />
       )}
 
