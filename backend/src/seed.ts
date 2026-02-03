@@ -23,8 +23,8 @@ async function seed() {
   console.log('Seed completed successfully!');
 }
 
-function seedCategories(
-  categories: { name: string; subcategories: { name: string; items: Record<string, unknown>[] }[] }[],
+function seedCategories<T extends Record<string, unknown>>(
+  categories: { name: string; subcategories: { name: string; items: T[] }[] }[],
   type: 'spare_parts' | 'mo'
 ) {
   for (const category of categories) {

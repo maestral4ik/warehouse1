@@ -5,7 +5,7 @@ import AddItemDialog, { ItemFormData, EditItemData } from './AddItemDialog';
 import { WriteOffData } from './WriteOffDialog';
 import MovementHistoryDrawer from './MovementHistoryDrawer';
 import { fetchSpareParts, createSparePart, updateSparePart, writeOffItem } from '../api';
-import { sparePartsColumns } from '../data/sparePartsData';
+import { getSparePartsColumns } from '../data/sparePartsData';
 import { Category, SparePartItem } from '../types';
 
 interface SparePartsTabProps {
@@ -190,7 +190,7 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
           {safeCategoryTab === index && (
             <CategoryTable<SparePartItem>
               category={category}
-              columns={sparePartsColumns}
+              columns={getSparePartsColumns(category.name)}
               statusField="status"
               selectedMonth={month}
               categoryName={category.name}

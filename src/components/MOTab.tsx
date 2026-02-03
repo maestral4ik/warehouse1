@@ -5,7 +5,7 @@ import AddItemDialog, { ItemFormData, EditItemData } from './AddItemDialog';
 import { WriteOffData } from './WriteOffDialog';
 import MovementHistoryDrawer from './MovementHistoryDrawer';
 import { fetchMOItems, createMOItem, updateMOItem, writeOffItem } from '../api';
-import { moColumns } from '../data/moData';
+import { getMOColumns } from '../data/moData';
 import { Category, MOItem } from '../types';
 
 interface MOTabProps {
@@ -190,7 +190,7 @@ function MOTab({ month, categoryTab, onCategoryChange }: MOTabProps) {
           {safeCategoryTab === index && (
             <CategoryTable<MOItem>
               category={category}
-              columns={moColumns}
+              columns={getMOColumns(category.name)}
               statusField="status"
               selectedMonth={month}
               categoryName={category.name}

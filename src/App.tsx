@@ -87,7 +87,15 @@ function App() {
           </Tabs>
         </Box>
 
-        <Box sx={{ backgroundColor: 'white', borderRadius: '0 0 8px 8px', px: 3, pb: 3, mb: 3 }}>
+        <Box sx={{
+          backgroundColor: 'white',
+          borderRadius: '0 0 8px 8px',
+          px: 3,
+          pb: 3,
+          mb: 3,
+          maxHeight: 'calc(100vh - 180px)',
+          overflow: 'auto'
+        }}>
           <TabPanel value={tabValue} index={0}>
             <SparePartsTab month={selectedMonth} categoryTab={categoryTab} onCategoryChange={handleCategoryChange} />
           </TabPanel>

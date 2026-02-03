@@ -64,6 +64,8 @@ export interface ColumnConfig {
   align?: 'left' | 'center' | 'right';
   compute?: (item: Record<string, unknown>, context?: ComputeContext) => string | number;
   summable?: boolean;
+  group?: string; // Group name for two-level headers
+  groupColor?: string; // Background color for grouped columns
 }
 
 export const OUTGOING_REASONS: Record<string, string[]> = {
