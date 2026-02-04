@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Box, Tabs, Tab, CircularProgress, Alert } from '@mui/material';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Box, Tabs, Tab, CircularProgress, Alert, Backdrop } from '@mui/material';
 import CategoryTable from './CategoryTable';
 import AddItemDialog, { ItemFormData, EditItemData } from './AddItemDialog';
 import { WriteOffData } from './WriteOffDialog';
 import MovementHistoryDrawer from './MovementHistoryDrawer';
-import { fetchSpareParts, createSparePart, updateSparePart, writeOffItem } from '../api';
+import { fetchSpareParts, createSparePart, updateSparePart, writeOffItem, deleteSparePart } from '../api';
 import { getSparePartsColumns } from '../data/sparePartsData';
 import { Category, SparePartItem } from '../types';
 
@@ -17,7 +17,9 @@ interface SparePartsTabProps {
 function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabProps) {
   const [data, setData] = useState<Category<SparePartItem>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isInitialLoad = useRef(true);
 
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -28,9 +30,13 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
   const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<SparePartItem | null>(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       const result = await fetchSpareParts(month);
       setData(result);
       setError(null);
@@ -42,18 +48,24 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
       setError('Не удалось загрузить данные');
     } finally {
       setLoading(false);
+      setRefreshing(false);
+      isInitialLoad.current = false;
     }
-  };
+  }, [month, categoryTab, onCategoryChange]);
 
   useEffect(() => {
-    loadData();
+    loadData(false);
   }, [month]);
 
-  const handleCategoryChange = (_event: React.SyntheticEvent, newValue: number) => {
-    onCategoryChange(newValue);
-  };
+  const refreshData = useCallback(() => {
+    loadData(true);
+  }, [loadData]);
 
-  const handleAddItem = async (categoryName: string, subcategoryName: string, item: ItemFormData) => {
+  const handleCategoryChange = useCallback((_event: React.SyntheticEvent, newValue: number) => {
+    onCategoryChange(newValue);
+  }, [onCategoryChange]);
+
+  const handleAddItem = useCallback(async (categoryName: string, subcategoryName: string, item: ItemFormData) => {
     const today = new Date();
     const dateStr = today.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
 
@@ -76,9 +88,9 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
         },
       ],
     });
-  };
+  }, []);
 
-  const handleEditItem = (item: SparePartItem, subcategoryName: string) => {
+  const handleEditItem = useCallback((item: SparePartItem, subcategoryName: string) => {
     setEditingItem({
       id: item.id,
       name: item.name,
@@ -90,9 +102,9 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
     });
     setEditSubcategory(subcategoryName);
     setEditDialogOpen(true);
-  };
+  }, []);
 
-  const handleUpdateItem = async (item: ItemFormData) => {
+  const handleUpdateItem = useCallback(async (item: ItemFormData) => {
     if (!editingItem) return;
 
     await updateSparePart(editingItem.id, {
@@ -104,18 +116,48 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
       ttnNumber: item.ttnNumber,
       status: item.quantity > 0 ? 'in stock' : 'written off',
     });
-    loadData();
-  };
+    refreshData();
+  }, [editingItem, refreshData]);
 
-  const handleWriteOff = async (item: SparePartItem, writeOffData: WriteOffData) => {
+  const handleWriteOff = useCallback(async (item: SparePartItem, writeOffData: WriteOffData) => {
     await writeOffItem('spare-parts', item.id, writeOffData);
-    loadData();
-  };
+    refreshData();
+  }, [refreshData]);
 
-  const handleViewMovements = (item: SparePartItem) => {
+  const handleViewMovements = useCallback((item: SparePartItem) => {
     setSelectedItem(item);
     setHistoryDrawerOpen(true);
-  };
+  }, []);
+
+  const handleDeleteItem = useCallback(async (item: SparePartItem) => {
+    await deleteSparePart(item.id);
+    refreshData();
+  }, [refreshData]);
+
+  const handleCloseEditDialog = useCallback(() => setEditDialogOpen(false), []);
+  const handleCloseHistoryDrawer = useCallback(() => setHistoryDrawerOpen(false), []);
+
+  // Ensure categoryTab is within bounds
+  const safeCategoryTab = Math.min(categoryTab, data.length - 1);
+
+  // Memoize columns for each category to prevent recreation on every render
+  const columnsMap = useMemo(() => {
+    const map: Record<string, ReturnType<typeof getSparePartsColumns>> = {};
+    data.forEach(category => {
+      map[category.name] = getSparePartsColumns(category.name);
+    });
+    return map;
+  }, [data]);
+
+  // Memoize add item handlers per category
+  const addItemHandlers = useMemo(() => {
+    const handlers: Record<string, (subcategoryName: string, item: ItemFormData) => Promise<void>> = {};
+    data.forEach(category => {
+      handlers[category.name] = (subcategoryName: string, item: ItemFormData) =>
+        handleAddItem(category.name, subcategoryName, item);
+    });
+    return handlers;
+  }, [data, handleAddItem]);
 
   if (loading) {
     return (
@@ -133,14 +175,22 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
     return <Alert severity="info">Нет данных за выбранный месяц.</Alert>;
   }
 
-  // Ensure categoryTab is within bounds
-  const safeCategoryTab = Math.min(categoryTab, data.length - 1);
-
   return (
-    <Box>
+    <Box sx={{ position: 'relative' }}>
+      <Backdrop
+        sx={{
+          position: 'absolute',
+          zIndex: 10,
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        }}
+        open={refreshing}
+      >
+        <CircularProgress color="primary" />
+      </Backdrop>
+
       <AddItemDialog
         open={editDialogOpen}
-        onClose={() => setEditDialogOpen(false)}
+        onClose={handleCloseEditDialog}
         onSubmit={handleUpdateItem}
         subcategoryName={editSubcategory}
         mode="edit"
@@ -150,11 +200,11 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
       {selectedItem && (
         <MovementHistoryDrawer
           open={historyDrawerOpen}
-          onClose={() => setHistoryDrawerOpen(false)}
+          onClose={handleCloseHistoryDrawer}
           itemId={selectedItem.id}
           itemName={selectedItem.name}
           itemType="spare-parts"
-          onMovementChange={loadData}
+          onMovementChange={refreshData}
           categoryName={data[safeCategoryTab]?.name}
         />
       )}
@@ -190,15 +240,16 @@ function SparePartsTab({ month, categoryTab, onCategoryChange }: SparePartsTabPr
           {safeCategoryTab === index && (
             <CategoryTable<SparePartItem>
               category={category}
-              columns={getSparePartsColumns(category.name)}
+              columns={columnsMap[category.name]}
               statusField="status"
               selectedMonth={month}
               categoryName={category.name}
-              onRefresh={loadData}
-              onAddItem={(subcategoryName, item) => handleAddItem(category.name, subcategoryName, item)}
+              onRefresh={refreshData}
+              onAddItem={addItemHandlers[category.name]}
               onEditItem={handleEditItem}
               onWriteOff={handleWriteOff}
               onViewMovements={handleViewMovements}
+              onDeleteItem={handleDeleteItem}
             />
           )}
         </Box>

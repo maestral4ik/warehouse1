@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import {
   Paper,
   Table,
@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import HistoryIcon from '@mui/icons-material/History';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -73,6 +74,7 @@ interface CategoryTableProps<T extends Record<string, unknown>> {
   onEditItem?: (item: T, subcategoryName: string) => void;
   onWriteOff?: (item: T, data: WriteOffData) => Promise<void>;
   onViewMovements?: (item: T) => void;
+  onDeleteItem?: (item: T) => Promise<void>;
 }
 
 const stickyStyles = {
@@ -109,6 +111,7 @@ function CategoryTable<T extends Record<string, unknown>>({
   onEditItem,
   onWriteOff,
   onViewMovements,
+  onDeleteItem,
 }: CategoryTableProps<T>) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
@@ -116,15 +119,15 @@ function CategoryTable<T extends Record<string, unknown>>({
   const [writeOffItem, setWriteOffItem] = useState<T | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
 
-  const handleSortToggle = () => {
+  const handleSortToggle = useCallback(() => {
     setSortOrder((prev) => {
       if (prev === null) return 'asc';
       if (prev === 'asc') return 'desc';
       return null;
     });
-  };
+  }, []);
 
-  const sortItems = (items: T[]) => {
+  const sortItems = useCallback((items: T[]) => {
     if (sortOrder === null) return items;
     return [...items].sort((a, b) => {
       const nameA = String(a.name || '').toLowerCase();
@@ -133,7 +136,7 @@ function CategoryTable<T extends Record<string, unknown>>({
         ? nameA.localeCompare(nameB, 'ru')
         : nameB.localeCompare(nameA, 'ru');
     });
-  };
+  }, [sortOrder]);
 
   const handleOpenAddDialog = (subcategoryName: string) => {
     setSelectedSubcategory(subcategoryName);
@@ -159,20 +162,85 @@ function CategoryTable<T extends Record<string, unknown>>({
     }
   };
 
-  const hasActions = onEditItem || onWriteOff || onViewMovements;
+  const hasActions = onEditItem || onWriteOff || onViewMovements || onDeleteItem;
+
+  const handleDeleteItem = async (item: T) => {
+    if (window.confirm(`Удалить "${item.name}"? Это действие нельзя отменить.`)) {
+      if (onDeleteItem) {
+        await onDeleteItem(item);
+        onRefresh?.();
+      }
+    }
+  };
   const tableRef = useRef<HTMLTableElement>(null);
   const cellRefs = useRef<Map<string, HTMLTableCellElement>>(new Map());
+  const lastHoveredCol = useRef<number | null>(null);
+
+  // Column hover using direct DOM manipulation (no React re-renders)
+  const handleTableMouseOver = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const cell = target.closest('td, th') as HTMLElement | null;
+    if (!cell || !tableRef.current) return;
+
+    const colIndex = cell.dataset.colIndex;
+    if (colIndex === undefined) return;
+
+    const colNum = parseInt(colIndex, 10);
+    if (lastHoveredCol.current === colNum) return;
+
+    // Remove previous highlights
+    if (lastHoveredCol.current !== null) {
+      const prevCells = tableRef.current.querySelectorAll('.col-hover');
+      prevCells.forEach(el => el.classList.remove('col-hover'));
+    }
+
+    // Add new highlights
+    const cells = tableRef.current.querySelectorAll(`[data-col-index="${colNum}"]`);
+    cells.forEach(el => el.classList.add('col-hover'));
+    lastHoveredCol.current = colNum;
+  }, []);
+
+  const handleTableMouseLeave = useCallback(() => {
+    if (!tableRef.current) return;
+    const cells = tableRef.current.querySelectorAll('.col-hover');
+    cells.forEach(el => el.classList.remove('col-hover'));
+    lastHoveredCol.current = null;
+  }, []);
+
+  // Memoize context object to prevent unnecessary recalculations
+  const computeContext = useMemo(() => ({ selectedMonth: selectedMonth || '' }), [selectedMonth]);
+
+  // Memoize sorted items for each subcategory
+  const sortedSubcategories = useMemo(() => {
+    return category.subcategories.map(subcategory => ({
+      ...subcategory,
+      sortedItems: sortItems(subcategory.items),
+    }));
+  }, [category.subcategories, sortItems]);
+
+  // Memoize subtotals for each subcategory
+  const subcategorySubtotals = useMemo(() => {
+    return sortedSubcategories.map(subcategory =>
+      calculateSubtotals(subcategory.items, columns, computeContext)
+    );
+  }, [sortedSubcategories, columns, computeContext]);
+
+  // Memoize grand totals
+  const grandTotals = useMemo(() => {
+    const allItems = category.subcategories.flatMap(sub => sub.items);
+    return calculateSubtotals(allItems, columns, computeContext);
+  }, [category.subcategories, columns, computeContext]);
 
   // Build flat list of all data rows for keyboard navigation
   const getAllRows = useCallback(() => {
     const rows: { subcategoryIndex: number; itemIndex: number }[] = [];
-    category.subcategories.forEach((subcategory, subIndex) => {
-      sortItems(subcategory.items).forEach((_, itemIndex) => {
+    sortedSubcategories.forEach((subcategory, subIndex) => {
+      subcategory.sortedItems.forEach((_, itemIndex) => {
         rows.push({ subcategoryIndex: subIndex, itemIndex });
       });
     });
     return rows;
-  }, [category.subcategories, sortOrder]);
+  }, [sortedSubcategories]);
 
   const handleCellKeyDown = useCallback((
     e: React.KeyboardEvent,
@@ -342,14 +410,68 @@ function CategoryTable<T extends Record<string, unknown>>({
     XLSX.writeFile(wb, `report_${selectedMonth || 'all'}.xlsx`);
   };
 
-  const handlePrint = () => {
+  const handlePrint = (mode: 'full' | 'brief' | 'balance' = 'full') => {
     const header = getReportHeader();
     const context = { selectedMonth: selectedMonth || '' };
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     // Filter out status column for print
-    const printColumns = columns.filter(col => col.id !== statusField);
+    let printColumns = columns.filter(col => col.id !== statusField);
+
+    // Balance only mode - show only specific columns
+    if (mode === 'balance') {
+      const balanceColumnIds = ['name', 'supplier', 'ttnNumber', 'endingQty', 'endingAmount'];
+      printColumns = printColumns.filter(col => balanceColumnIds.includes(col.id));
+    }
+    // Brief mode - exclude reason columns
+    else if (mode === 'brief') {
+      const hasGroupedColumns = printColumns.some(col => col.group);
+      if (hasGroupedColumns) {
+        // Remove all grouped columns
+        printColumns = printColumns.filter(col => !col.group);
+
+        // Check if we need to add simple issuedQty column (it may not exist when there are multiple reasons)
+        const hasIssuedQty = printColumns.some(col => col.id === 'issuedQty');
+        const hasIssuedAmount = printColumns.some(col => col.id === 'issuedAmount');
+
+        // Find the index of issuedAmount or endingQty to insert before it
+        const insertIndex = printColumns.findIndex(col => col.id === 'issuedAmount' || col.id === 'endingQty');
+
+        if (!hasIssuedQty && insertIndex !== -1) {
+          // Add simple issuedQty column
+          printColumns.splice(insertIndex, 0, {
+            id: 'issuedQty',
+            label: 'Выбыло кол-во',
+            minWidth: 100,
+            align: 'right' as const,
+            compute: (item: Record<string, unknown>) => {
+              const qty = Number(item.issuedQty) || 0;
+              return qty > 0 ? qty : '';
+            }
+          });
+        }
+
+        if (!hasIssuedAmount) {
+          // Find where to insert issuedAmount (after issuedQty or before endingQty)
+          const amountIndex = printColumns.findIndex(col => col.id === 'endingQty');
+          if (amountIndex !== -1) {
+            printColumns.splice(amountIndex, 0, {
+              id: 'issuedAmount',
+              label: 'Сумма расхода',
+              minWidth: 100,
+              align: 'right' as const,
+              summable: true,
+              compute: (item: Record<string, unknown>) => {
+                const qty = Number(item.issuedQty) || 0;
+                if (qty <= 0) return '';
+                return (qty * Number(item.price)).toFixed(2);
+              }
+            });
+          }
+        }
+      }
+    }
 
     // Check if there are grouped columns
     const hasGroups = printColumns.some(col => col.group);
@@ -483,6 +605,8 @@ function CategoryTable<T extends Record<string, unknown>>({
           .subcategory { background-color: #eceff1; font-weight: 600; }
           .subtotal { background-color: #f5f5f5; font-weight: bold; }
           .grand-total { background-color: #e0e0e0; font-weight: bold; }
+          .footer { margin-top: 40px; font-size: 12px; }
+          .footer-line { margin-bottom: 20px; }
           @media print {
             button { display: none; }
           }
@@ -491,6 +615,10 @@ function CategoryTable<T extends Record<string, unknown>>({
       <body>
         <div class="header">${header}</div>
         ${tableHtml}
+        <div class="footer">
+          <div class="footer-line">Материально ответственное лицо ____________ Плашкевич Е. В.</div>
+          <div class="footer-line">Отчет с приложением _____ приходных и _____ расходных документов принял бухгалтер ____________ Нечаева С А</div>
+        </div>
         <script>window.onload = function() { window.print(); }</script>
       </body>
       </html>
@@ -541,14 +669,47 @@ function CategoryTable<T extends Record<string, unknown>>({
           variant="outlined"
           size="small"
           startIcon={<PrintIcon />}
-          onClick={handlePrint}
+          onClick={() => handlePrint('full')}
         >
           Печать
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<PrintIcon />}
+          onClick={() => handlePrint('brief')}
+        >
+          Печать (кратко)
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<PrintIcon />}
+          onClick={() => handlePrint('balance')}
+        >
+          Печать (остатки)
         </Button>
       </Stack>
 
       <TableContainer component={Paper} sx={{ overflowX: 'visible' }}>
-        <Table size="small" ref={tableRef} sx={{ minWidth: 1200, borderCollapse: 'collapse' }}>
+        <Table
+          size="small"
+          ref={tableRef}
+          onMouseOver={handleTableMouseOver}
+          onMouseLeave={handleTableMouseLeave}
+          sx={{
+            minWidth: 1200,
+            borderCollapse: 'collapse',
+            // Column hover - light gray (distinct from group colors)
+            '& .MuiTableCell-root.col-hover': {
+              backgroundColor: '#eeeeee !important',
+            },
+            // Row hover for sticky name column
+            '& tbody tr:hover > td[data-col-index="0"]': {
+              backgroundColor: '#eeeeee !important',
+            },
+          }}
+        >
           <TableHead>
             {(() => {
               // Check if there are grouped columns
@@ -561,6 +722,7 @@ function CategoryTable<T extends Record<string, unknown>>({
                     {columns.map((column, colIndex) => (
                       <TableCell
                         key={column.id}
+                        data-col-index={colIndex}
                         align={column.align || 'left'}
                         style={{ minWidth: column.minWidth }}
                         sortDirection={column.id === 'name' && sortOrder ? sortOrder : false}
@@ -624,13 +786,19 @@ function CategoryTable<T extends Record<string, unknown>>({
                 }
               });
 
+              // Build a mapping from column id to its index
+              const columnIndexMap: Record<string, number> = {};
+              columns.forEach((col, idx) => {
+                columnIndexMap[col.id] = idx;
+              });
+
               return (
                 <>
                   {/* First row: Group headers */}
                   <TableRow>
                     {headerGroups.map((hg, idx) => {
                       if (hg.group) {
-                        // Grouped columns - show group name with group color
+                        // Grouped columns - show group name with group color (no individual hover for group header)
                         const groupColor = groupColorMap[hg.group] || '#e3f2fd';
                         return (
                           <TableCell
@@ -648,31 +816,35 @@ function CategoryTable<T extends Record<string, unknown>>({
                         );
                       } else {
                         // Non-grouped columns - render each individually with rowSpan=2
-                        return columns.slice(hg.startIdx, hg.startIdx + hg.colSpan).map((col, colIdx) => (
-                          <TableCell
-                            key={col.id}
-                            rowSpan={2}
-                            align={col.align || 'left'}
-                            style={{ minWidth: col.minWidth, verticalAlign: 'middle' }}
-                            sortDirection={col.id === 'name' && sortOrder ? sortOrder : false}
-                            sx={{
-                              ...cellBorderStyle,
-                              ...(hg.startIdx + colIdx === 0 ? { ...stickyStyles, zIndex: 4, bgcolor: '#fff' } : {}),
-                            }}
-                          >
-                            {col.id === 'name' ? (
-                              <TableSortLabel
-                                active={sortOrder !== null}
-                                direction={sortOrder || 'asc'}
-                                onClick={handleSortToggle}
-                              >
-                                {col.label}
-                              </TableSortLabel>
-                            ) : (
-                              col.label
-                            )}
-                          </TableCell>
-                        ));
+                        return columns.slice(hg.startIdx, hg.startIdx + hg.colSpan).map((col, colIdx) => {
+                          const actualColIndex = hg.startIdx + colIdx;
+                          return (
+                            <TableCell
+                              key={col.id}
+                              data-col-index={actualColIndex}
+                              rowSpan={2}
+                              align={col.align || 'left'}
+                              style={{ minWidth: col.minWidth, verticalAlign: 'middle' }}
+                              sortDirection={col.id === 'name' && sortOrder ? sortOrder : false}
+                              sx={{
+                                ...cellBorderStyle,
+                                ...(actualColIndex === 0 ? { ...stickyStyles, zIndex: 4, bgcolor: '#fff' } : {}),
+                              }}
+                            >
+                              {col.id === 'name' ? (
+                                <TableSortLabel
+                                  active={sortOrder !== null}
+                                  direction={sortOrder || 'asc'}
+                                  onClick={handleSortToggle}
+                                >
+                                  {col.label}
+                                </TableSortLabel>
+                              ) : (
+                                col.label
+                              )}
+                            </TableCell>
+                          );
+                        });
                       }
                     })}
                     {hasActions && (
@@ -683,19 +855,24 @@ function CategoryTable<T extends Record<string, unknown>>({
                   </TableRow>
                   {/* Second row: Sub-headers for grouped columns only */}
                   <TableRow>
-                    {columns.filter(col => col.group).map((col) => (
-                      <TableCell
-                        key={col.id}
-                        align={col.align || 'left'}
-                        style={{ minWidth: col.minWidth }}
-                        sx={{
-                          backgroundColor: col.groupColor || '#e3f2fd',
-                          ...cellBorderStyle,
-                        }}
-                      >
-                        {col.label}
-                      </TableCell>
-                    ))}
+                    {columns.filter(col => col.group).map((col) => {
+                      const colIndex = columnIndexMap[col.id];
+                      const baseColor = col.groupColor || '#e3f2fd';
+                      return (
+                        <TableCell
+                          key={col.id}
+                          data-col-index={colIndex}
+                          align={col.align || 'left'}
+                          style={{ minWidth: col.minWidth }}
+                          sx={{
+                            backgroundColor: baseColor,
+                            ...cellBorderStyle,
+                          }}
+                        >
+                          {col.label}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 </>
               );
@@ -706,10 +883,11 @@ function CategoryTable<T extends Record<string, unknown>>({
               let globalRowIndex = 0;
               const totalCols = columns.length;
 
-              return category.subcategories.map((subcategory, subIndex) => (
+              return sortedSubcategories.map((subcategory, subIndex) => (
                 <React.Fragment key={`subcategory-${subIndex}-${subcategory.name}`}>
                   <TableRow sx={{ backgroundColor: '#eceff1' }}>
                     <TableCell
+                      data-col-index={0}
                       sx={{
                         fontWeight: 600,
                         color: 'secondary.dark',
@@ -728,13 +906,22 @@ function CategoryTable<T extends Record<string, unknown>>({
                       sx={{ bgcolor: '#eceff1', ...cellBorderStyle }}
                     />
                   </TableRow>
-                  {sortItems(subcategory.items).map((item, index) => {
+                  {subcategory.sortedItems.map((item, index) => {
                     const currentRowIndex = globalRowIndex++;
                     return (
-                      <TableRow key={`item-${index}`} sx={{ backgroundColor: '#fff' }}>
+                      <TableRow
+                        key={`item-${index}`}
+                        sx={{
+                          backgroundColor: '#fff',
+                          '&:hover': {
+                            backgroundColor: '#eeeeee',
+                          },
+                        }}
+                      >
                         {columns.map((column, colIndex) => (
                           <TableCell
                             key={column.id}
+                            data-col-index={colIndex}
                             align={column.align || 'left'}
                             tabIndex={0}
                             ref={(el: HTMLTableCellElement | null) => setCellRef(currentRowIndex, colIndex, el)}
@@ -758,7 +945,7 @@ function CategoryTable<T extends Record<string, unknown>>({
                               />
                             ) : (
                               column.compute
-                                ? column.compute(item as Record<string, unknown>, { selectedMonth: selectedMonth || '' })
+                                ? column.compute(item as Record<string, unknown>, computeContext)
                                 : String(item[column.id as keyof T])
                             )}
                           </TableCell>
@@ -795,6 +982,16 @@ function CategoryTable<T extends Record<string, unknown>>({
                             <RemoveCircleOutlineIcon fontSize="small" />
                           </IconButton>
                         )}
+                        {onDeleteItem && (
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteItem(item)}
+                            title="Удалить"
+                            color="error"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
                       </TableCell>
                     )}
                       </TableRow>
@@ -803,7 +1000,15 @@ function CategoryTable<T extends Record<string, unknown>>({
                   {onAddItem && (
                   <TableRow sx={{ backgroundColor: '#fff' }}>
                     <TableCell
-                      sx={{ py: 1, ...stickyStyles, ...cellBorderStyle, zIndex: 2, bgcolor: '#fff', pl: 4 }}
+                      data-col-index={0}
+                      sx={{
+                        py: 1,
+                        ...stickyStyles,
+                        ...cellBorderStyle,
+                        zIndex: 2,
+                        bgcolor: '#fff',
+                        pl: 4,
+                      }}
                     >
                       <Button
                         size="small"
@@ -817,13 +1022,12 @@ function CategoryTable<T extends Record<string, unknown>>({
                   </TableRow>
                 )}
                 {/* Subtotal row for subcategory - only show if more than one subcategory */}
-                {category.subcategories.length > 1 && (() => {
-                  const subtotals = calculateSubtotals(subcategory.items, columns, { selectedMonth: selectedMonth || '' });
-                  return (
-                    <TableRow sx={{ backgroundColor: '#f5f5f5', borderBottom: subIndex < category.subcategories.length - 1 ? 2 : 1, borderColor: 'divider' }}>
+                {sortedSubcategories.length > 1 && (
+                    <TableRow sx={{ backgroundColor: '#f5f5f5', borderBottom: subIndex < sortedSubcategories.length - 1 ? 2 : 1, borderColor: 'divider' }}>
                       {columns.map((column, colIndex) => (
                         <TableCell
                           key={column.id}
+                          data-col-index={colIndex}
                           align={column.align || 'left'}
                           sx={{
                             fontWeight: 600,
@@ -835,47 +1039,41 @@ function CategoryTable<T extends Record<string, unknown>>({
                           {colIndex === 0
                             ? `Итого по ${subcategory.name}`
                             : column.summable
-                              ? subtotals[column.id]?.toFixed(2) || ''
+                              ? subcategorySubtotals[subIndex][column.id]?.toFixed(2) || ''
                               : ''
                           }
                         </TableCell>
                       ))}
                       {hasActions && <TableCell sx={cellBorderStyle} />}
                     </TableRow>
-                  );
-                })()}
+                )}
                 </React.Fragment>
               ));
             })()}
             {/* Grand total row for entire category */}
-            {(() => {
-              const allItems = category.subcategories.flatMap(sub => sub.items);
-              const grandTotals = calculateSubtotals(allItems, columns, { selectedMonth: selectedMonth || '' });
-              return (
-                <TableRow sx={{ backgroundColor: '#e0e0e0' }}>
-                  {columns.map((column, colIndex) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align || 'left'}
-                      sx={{
-                        fontWeight: 600,
-                        ...cellBorderStyle,
-                        ...(colIndex === 0 ? { ...stickyStyles, zIndex: 2, bgcolor: '#e0e0e0' } : {}),
-                        ...(column.groupColor ? { bgcolor: column.groupColor } : {}),
-                      }}
-                    >
-                      {colIndex === 0
-                        ? 'Итого по категории'
-                        : column.summable
-                          ? grandTotals[column.id]?.toFixed(2) || ''
-                          : ''
-                      }
-                    </TableCell>
-                  ))}
-                  {hasActions && <TableCell sx={cellBorderStyle} />}
-                </TableRow>
-              );
-            })()}
+            <TableRow sx={{ backgroundColor: '#e0e0e0' }}>
+              {columns.map((column, colIndex) => (
+                <TableCell
+                  key={column.id}
+                  data-col-index={colIndex}
+                  align={column.align || 'left'}
+                  sx={{
+                    fontWeight: 600,
+                    ...cellBorderStyle,
+                    ...(colIndex === 0 ? { ...stickyStyles, zIndex: 2, bgcolor: '#e0e0e0' } : {}),
+                    ...(column.groupColor ? { bgcolor: column.groupColor } : {}),
+                  }}
+                >
+                  {colIndex === 0
+                    ? 'Итого по категории'
+                    : column.summable
+                      ? grandTotals[column.id]?.toFixed(2) || ''
+                      : ''
+                  }
+                </TableCell>
+              ))}
+              {hasActions && <TableCell sx={cellBorderStyle} />}
+            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>
@@ -883,4 +1081,7 @@ function CategoryTable<T extends Record<string, unknown>>({
   );
 }
 
-export default CategoryTable;
+// Memoize the component to prevent unnecessary re-renders
+const MemoizedCategoryTable = React.memo(CategoryTable) as typeof CategoryTable;
+
+export default MemoizedCategoryTable;

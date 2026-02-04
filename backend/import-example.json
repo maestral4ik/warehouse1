@@ -1,0 +1,2121 @@
+{
+  "clearExisting": false,
+  "spare_parts": [
+    {
+      "name": "Запчасти",
+      "subcategories": [
+        {
+          "name": "Запчасти",
+          "items": [
+            {
+              "name": "А/лампа 12 H7",
+              "unit": "шт",
+              "quantity": 7,
+              "price": 6.75,
+              "sum": 47.25,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "А/лампа 24В",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 9.75,
+              "sum": 9.75,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "А/лампа Н7 24",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 10.77,
+              "sum": 10.77,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Автолампа А24-4Вт",
+              "unit": "шт",
+              "quantity": 10,
+              "price": 1.5,
+              "sum": 15,
+              "supplier": "Титул",
+              "ttnNumber": "0299998 31,10,2024"
+            },
+            {
+              "name": "Аммортизатор 331.01-2199А",
+              "unit": "шт",
+              "quantity": 32,
+              "price": 3.21,
+              "sum": 102.72,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Амортизатор ППЛ 8 01.02,018",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 7.66,
+              "sum": 15.32,
+              "supplier": "Минойтовский р/завод",
+              "ttnNumber": "0378094 19,07,2024"
+            },
+            {
+              "name": "бендикс",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 48.7,
+              "sum": 48.7,
+              "supplier": "ИП Иванищев Д.В.",
+              "ttnNumber": "1560200 24.05.2023г."
+            },
+            {
+              "name": "Битер ПРТ",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 562.4,
+              "sum": 562.4,
+              "supplier": "Агрополис",
+              "ttnNumber": "4101846 27,03,2024"
+            },
+            {
+              "name": "Боковина ПРФ",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 177.6,
+              "sum": 177.6,
+              "supplier": "Агрополис",
+              "ttnNumber": "3102870 14,08,2024"
+            },
+            {
+              "name": "Болт  М 10*25.88.116",
+              "unit": "кг",
+              "quantity": 2,
+              "price": 21.36,
+              "sum": 42.72,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826282 16,08,2024"
+            },
+            {
+              "name": "Болт М12*34",
+              "unit": "шт",
+              "quantity": 100,
+              "price": 0.41,
+              "sum": 41,
+              "supplier": "Агрополис",
+              "ttnNumber": "2701384 17,12,2025"
+            },
+            {
+              "name": "Болт М16",
+              "unit": "кг",
+              "quantity": 6,
+              "price": 7,
+              "sum": 42,
+              "supplier": "Агрополис",
+              "ttnNumber": "3209432 06,11,2024"
+            },
+            {
+              "name": "Болт М8*25.88.16",
+              "unit": "кг",
+              "quantity": 4,
+              "price": 21.48,
+              "sum": 85.92,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826282 16,08,2024"
+            },
+            {
+              "name": "Брус КВС-1-0117150.3",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 209.06,
+              "sum": 418.12,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155048 20,08,2025"
+            },
+            {
+              "name": "Брусок шлифовал.БКР59*215 1.И.БКр",
+              "unit": "шт",
+              "quantity": 6,
+              "price": 26.31,
+              "sum": 157.86,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155085 04,09,2025"
+            },
+            {
+              "name": "Вал арт50,040-01",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 216.13,
+              "sum": 432.26,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Вал с диском ПРФ-146",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 150,
+              "sum": 150,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Вал Т8-1100С40SB-120",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 408.61,
+              "sum": 408.61,
+              "supplier": "МирАгроМаш",
+              "ttnNumber": "0238812 05,04,2024"
+            },
+            {
+              "name": "Вентилятор 240-130804",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 14.91,
+              "sum": 14.91,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Вилка В 7",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 11.41,
+              "sum": 34.23,
+              "supplier": "Титул",
+              "ttnNumber": "1010517 30,1,2024"
+            },
+            {
+              "name": "Вилка В6/W22",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 150,
+              "sum": 150,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Вилка В7",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 11.41,
+              "sum": 45.64,
+              "supplier": "Титул",
+              "ttnNumber": "0229144 21,02,2025"
+            },
+            {
+              "name": "Винт КЗК 1770617",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 24,
+              "sum": 48,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826027 17,06,2024"
+            },
+            {
+              "name": "Воздухораспределитель 11.3531010-71",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 147.37,
+              "sum": 147.37,
+              "supplier": "МирАгроМаш",
+              "ttnNumber": "0238812 05,04,2024"
+            },
+            {
+              "name": "Вставка КВС",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 74.25,
+              "sum": 74.25,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Втулка КЗР 1507001",
+              "unit": "шт",
+              "quantity": 6,
+              "price": 0.79,
+              "sum": 4.74,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Втулка пластиков.КВС-4-3903001",
+              "unit": "шт",
+              "quantity": 16,
+              "price": 2.72,
+              "sum": 43.52,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Втулка РСМ",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 10.09,
+              "sum": 10.09,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Выключатель ВК-12-4",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 11.64,
+              "sum": 11.64,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Выключатель Вк-322",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 2.95,
+              "sum": 8.85,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Выключатель ВК12-3",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 3.9,
+              "sum": 7.8,
+              "supplier": "База МТС",
+              "ttnNumber": "0338088 29,1,2024"
+            },
+            {
+              "name": "выключатель света задн.хода ВК-24-1",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 8.2,
+              "sum": 8.2,
+              "supplier": "База мат.-тех. снабжения",
+              "ttnNumber": "1025170 26.05.2023г."
+            },
+            {
+              "name": "Гайка 403103017",
+              "unit": "шт",
+              "quantity": 26,
+              "price": 3.99,
+              "sum": 103.74,
+              "supplier": "Титул",
+              "ttnNumber": "0930714 22,09,2023"
+            },
+            {
+              "name": "Гайка М16 6Н6",
+              "unit": "кг",
+              "quantity": 5,
+              "price": 7.4,
+              "sum": 37,
+              "supplier": "Агрополис",
+              "ttnNumber": "4367673 30,11,2023"
+            },
+            {
+              "name": "Гайка пальца рул.тяги М24*2",
+              "unit": "шт",
+              "quantity": 9,
+              "price": 1,
+              "sum": 9,
+              "supplier": "База МТС",
+              "ttnNumber": "0206160 21,03,2025"
+            },
+            {
+              "name": "Генератор 28В 35А",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 173.16,
+              "sum": 173.16,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Гидроцилиндр поворотов",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 52.38,
+              "sum": 52.38,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Глазок КЗР 1502003",
+              "unit": "шт",
+              "quantity": 20,
+              "price": 1.08,
+              "sum": 21.6,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Граблина 2689250",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 120.15,
+              "sum": 120.15,
+              "supplier": "Агрополис",
+              "ttnNumber": "1439867 03,05,2024"
+            },
+            {
+              "name": "Датчик ДАДМ",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 3.94,
+              "sum": 3.94,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Датчик ДАТЖ",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 9.34,
+              "sum": 9.34,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Датчик ДИ472",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 98.4,
+              "sum": 98.4,
+              "supplier": "Агрополис",
+              "ttnNumber": "3508332 25,07,2025"
+            },
+            {
+              "name": "Державка зубьевПРФ-180 ПР07.00.220",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 72,
+              "sum": 144,
+              "supplier": "ПремияМастер",
+              "ttnNumber": "1478036 08,08,2024"
+            },
+            {
+              "name": "Диск опорный",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 45.76,
+              "sum": 137.28,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Диск сцепления 142-1601130 вед",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 166.14,
+              "sum": 332.28,
+              "supplier": "Титул",
+              "ttnNumber": "1308498 21,07,2025"
+            },
+            {
+              "name": "Диск(промежуточный) мокрый",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 47.19,
+              "sum": 94.38,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "До ска полевая073609",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 44.5,
+              "sum": 222.5,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5159522 28,10,2025"
+            },
+            {
+              "name": "Долото 052090",
+              "unit": "шт",
+              "quantity": 11,
+              "price": 6.9,
+              "sum": 75.9,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5159522 28,10,2025"
+            },
+            {
+              "name": "Долото 063090",
+              "unit": "шт",
+              "quantity": 11,
+              "price": 6.9,
+              "sum": 75.9,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5159522 28,10,2025"
+            },
+            {
+              "name": "Загортач",
+              "unit": "шт",
+              "quantity": 25,
+              "price": 14.96,
+              "sum": 374,
+              "supplier": "Агрополис",
+              "ttnNumber": "0205716 16,10,2025"
+            },
+            {
+              "name": "Замок зажигания 12-3704 ГАЗ-53",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 61.26,
+              "sum": 61.26,
+              "supplier": "Титул",
+              "ttnNumber": "1308332 27,06,2025"
+            },
+            {
+              "name": "Звездочка ПР02.00.060",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 150,
+              "sum": 150,
+              "supplier": "Агрополис",
+              "ttnNumber": "3102870 14,08,2024"
+            },
+            {
+              "name": "Звездочка Z-7 д-35",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 10.68,
+              "sum": 21.36,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Звездочка Z15-2",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 120,
+              "sum": 360,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Зеркало",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 16.22,
+              "sum": 16.22,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Зуб бороны БЗС603",
+              "unit": "шт",
+              "quantity": 100,
+              "price": 4,
+              "sum": 400,
+              "supplier": "Агрополис",
+              "ttnNumber": "4367673 30,11,2023"
+            },
+            {
+              "name": "Зуб пружинный КВС 4 -3903601",
+              "unit": "шт",
+              "quantity": 25,
+              "price": 2,
+              "sum": 50,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Зуб пружинный КВС 4 -3903601",
+              "unit": "шт",
+              "quantity": 75,
+              "price": 2,
+              "sum": 150,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Зуб пружинный ПБ 16.01.607",
+              "unit": "шт",
+              "quantity": 51,
+              "price": 2.34,
+              "sum": 119.34,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Зуб пружинный ПТН-3-0103607",
+              "unit": "шт",
+              "quantity": 20,
+              "price": 5.54,
+              "sum": 110.8,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155048 20,08,2025"
+            },
+            {
+              "name": "Кардан",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 80.24,
+              "sum": 80.24,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Клавиша КЗК 12-0212030(1 мм) соломотряса",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 808.72,
+              "sum": 1617.44,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Клавиша КЗК 12-0212030/01 соломотряса",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 862.75,
+              "sum": 862.75,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Коврик КЗС",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 9.35,
+              "sum": 18.7,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Кожух сдвоенный КЗК-10-0217100",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 1304.36,
+              "sum": 1304.36,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Колесо КV",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 25.2,
+              "sum": 50.4,
+              "supplier": "Агрополис",
+              "ttnNumber": "1468146 03,10,2024"
+            },
+            {
+              "name": "Колпак 5336-1703425",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 1.95,
+              "sum": 1.95,
+              "supplier": "База МТС",
+              "ttnNumber": "0338016 14,12,2023"
+            },
+            {
+              "name": "Кольцо защитное MZIP-000-008 025",
+              "unit": "шт",
+              "quantity": 12,
+              "price": 1.45,
+              "sum": 17.4,
+              "supplier": "Агромастер Плюс",
+              "ttnNumber": "2949516 22.06.2022г."
+            },
+            {
+              "name": "Кольцо КВС-1-0116003",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 5.16,
+              "sum": 15.48,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2714801 24,08,2023"
+            },
+            {
+              "name": "Коробка отбора мощн.555142-4202010",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 963.66,
+              "sum": 963.66,
+              "supplier": "Титул",
+              "ttnNumber": "0299488 30,08,2024"
+            },
+            {
+              "name": "Корпус АКШ",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 34.89,
+              "sum": 174.45,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Корпус вилок МТЗ 50-1702080",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 541.67,
+              "sum": 541.67,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Крестовина 82,6-4715200А-01",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 14.29,
+              "sum": 42.87,
+              "supplier": "ПремияМастер",
+              "ttnNumber": "2733245 31,08,2023"
+            },
+            {
+              "name": "Крестовина кар. вала МАЗ 4310-22050",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 57.15,
+              "sum": 57.15,
+              "supplier": "База МТС",
+              "ttnNumber": "0338078 23,1,2024"
+            },
+            {
+              "name": "Крестовина9.108.16.118",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 23,
+              "sum": 46,
+              "supplier": "МирАгроМаш",
+              "ttnNumber": "0238812 05,04,2024"
+            },
+            {
+              "name": "Кронштейн привода ножа 85",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 34.51,
+              "sum": 34.51,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316812 08,08,2025"
+            },
+            {
+              "name": "Крышка МЖТ",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 400,
+              "sum": 400,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Крышка ТО",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 44.41,
+              "sum": 44.41,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Крышка ТО",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 121.29,
+              "sum": 242.58,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Крышка ТО",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 38.87,
+              "sum": 116.61,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Крышка, артикул 600.016",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 15,
+              "sum": 45,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Кулачок с роликом ПР 07.00.080",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 11.98,
+              "sum": 23.96,
+              "supplier": "Агрополис",
+              "ttnNumber": "3506734 27,06,2025"
+            },
+            {
+              "name": "Лампа АКГ 74 12-55",
+              "unit": "шт",
+              "quantity": 7,
+              "price": 5.1,
+              "sum": 35.7,
+              "supplier": "База МТС",
+              "ttnNumber": "0338088 29,1,2024"
+            },
+            {
+              "name": "Лампа АКГ Н4",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 3.25,
+              "sum": 13,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Лампа АКГ Н4",
+              "unit": "шт",
+              "quantity": 8,
+              "price": 2.65,
+              "sum": 21.2,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Лампа АКГ Н4 12-60-55",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 2.8,
+              "sum": 8.4,
+              "supplier": "База МТС",
+              "ttnNumber": "0338088 29,1,2024"
+            },
+            {
+              "name": "Лампа АКГ Н4 24-75-70",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 3.5,
+              "sum": 14,
+              "supplier": "База МТС",
+              "ttnNumber": "0571949 02,09,2024"
+            },
+            {
+              "name": "Лампа светод А12-1",
+              "unit": "компл",
+              "quantity": 3,
+              "price": 9.5,
+              "sum": 28.5,
+              "supplier": "База МТС",
+              "ttnNumber": "0338088 29,1,2024"
+            },
+            {
+              "name": "Лапа оборотная",
+              "unit": "шт",
+              "quantity": 66,
+              "price": 9.22,
+              "sum": 608.52,
+              "supplier": "Райф",
+              "ttnNumber": "0549990 23,12,2024"
+            },
+            {
+              "name": "Лемех 073004",
+              "unit": "шт",
+              "quantity": 6,
+              "price": 47.97,
+              "sum": 287.82,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5159522 28,10,2025"
+            },
+            {
+              "name": "Лемех 073005",
+              "unit": "шт",
+              "quantity": 6,
+              "price": 47.97,
+              "sum": 287.82,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5159522 28,10,2025"
+            },
+            {
+              "name": "Лемех 73004",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 49.7,
+              "sum": 198.8,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155085 04,09,2025"
+            },
+            {
+              "name": "Лемех 73005",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 49.7,
+              "sum": 198.8,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155085 04,09,2025"
+            },
+            {
+              "name": "Лента ВОМ узкая",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 41.28,
+              "sum": 41.28,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Лента ВОМ широкая",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 66.48,
+              "sum": 66.48,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Лента конвейерная",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 1577.12,
+              "sum": 1577.12,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Лист 1-0142414",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 30.3,
+              "sum": 60.6,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Лист КВС-1-0142414",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 67.22,
+              "sum": 67.22,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Лист КВС-1-0147404",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 101.75,
+              "sum": 203.5,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Лист КВс-2-0115421",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 94.98,
+              "sum": 94.98,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2714801 24,08,2023"
+            },
+            {
+              "name": "Лист КВС20115421",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 83.83,
+              "sum": 167.66,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Лопатка левая НР12-0110016-01А",
+              "unit": "шт",
+              "quantity": 14,
+              "price": 11.83,
+              "sum": 165.62,
+              "supplier": "Агрополис",
+              "ttnNumber": "3209432 06,11,2024"
+            },
+            {
+              "name": "Лопатка правая НР12-0110016А",
+              "unit": "шт",
+              "quantity": 14,
+              "price": 11.83,
+              "sum": 165.62,
+              "supplier": "Агрополис",
+              "ttnNumber": "3209432 06,11,2024"
+            },
+            {
+              "name": "Манжета 2.2-40*72*10",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 1.54,
+              "sum": 6.16,
+              "supplier": "БелСнабПодшипник",
+              "ttnNumber": "0851976 05.10.22г."
+            },
+            {
+              "name": "Манжета 55*80",
+              "unit": "шт",
+              "quantity": 45,
+              "price": 1.2,
+              "sum": 54,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Манжета 70*95",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 4.45,
+              "sum": 8.9,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Манжета 95*120",
+              "unit": "шт",
+              "quantity": 17,
+              "price": 1.6,
+              "sum": 27.2,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Маяк импульсный",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 36.5,
+              "sum": 73,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Моторедуктор",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 216.45,
+              "sum": 216.45,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Муфта КВС-2-0111710А",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 363.82,
+              "sum": 363.82,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826027 17,06,2024"
+            },
+            {
+              "name": "Муфта разрывная",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 13.64,
+              "sum": 40.92,
+              "supplier": "Техноокруг",
+              "ttnNumber": "1510879 21,07,2025"
+            },
+            {
+              "name": "Накладка КВК 0144423Д",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 40.68,
+              "sum": 81.36,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155085 04,09,2025"
+            },
+            {
+              "name": "Накладка тормозная А59..01.201",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 1.26,
+              "sum": 2.52,
+              "supplier": "Агрополис",
+              "ttnNumber": "3506734 27,06,2025"
+            },
+            {
+              "name": "Наконечник 300*54*10",
+              "unit": "шт",
+              "quantity": 15,
+              "price": 17.5,
+              "sum": 262.5,
+              "supplier": "Агрополис",
+              "ttnNumber": "3102870 14,08,2024"
+            },
+            {
+              "name": "Нож ЖГР-2-0210401/ТР2",
+              "unit": "шт",
+              "quantity": 8,
+              "price": 16.39,
+              "sum": 131.12,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155085 04,09,2025"
+            },
+            {
+              "name": "Нож КЗР 1507010-21",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 207.29,
+              "sum": 207.29,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826027 17,06,2024"
+            },
+            {
+              "name": "Обод стальной",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 90,
+              "sum": 90,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Опора промежут в сб 722209010А",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 244.15,
+              "sum": 244.15,
+              "supplier": "База МТС",
+              "ttnNumber": "0547855 22,10,2025"
+            },
+            {
+              "name": "ОпораSAS 4-3903002",
+              "unit": "шт",
+              "quantity": 8,
+              "price": 1.77,
+              "sum": 14.16,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "ПалецКЭК-1420-1502601",
+              "unit": "шт",
+              "quantity": 26,
+              "price": 3.36,
+              "sum": 87.36,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826111 09,07,2024"
+            },
+            {
+              "name": "Пгевмокомпрессор А29.05.000",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 379.9,
+              "sum": 379.9,
+              "supplier": "База МТС",
+              "ttnNumber": "0547971 31,12,2025"
+            },
+            {
+              "name": "Переходник МТЗ 240-1008021",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 39.68,
+              "sum": 79.36,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Планка ПС",
+              "unit": "шт",
+              "quantity": 22,
+              "price": 11.41,
+              "sum": 251.02,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Планка ПС45.01.02.701",
+              "unit": "шт",
+              "quantity": 8,
+              "price": 16.83,
+              "sum": 134.64,
+              "supplier": "Агрополис",
+              "ttnNumber": "2319685 12,09,2024"
+            },
+            {
+              "name": "Планка ПС45.01.02.701",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 16.72,
+              "sum": 33.44,
+              "supplier": "Агрополис",
+              "ttnNumber": "2319685 12,09,2024"
+            },
+            {
+              "name": "Подпружинник УПС 10-089-006-02",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 50.37,
+              "sum": 251.85,
+              "supplier": "Райф",
+              "ttnNumber": "2030426 22,09,2025"
+            },
+            {
+              "name": "Подш-к 7204 (30204)",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 7.87,
+              "sum": 31.48,
+              "supplier": "БелСнабПодшипник",
+              "ttnNumber": "0851976 05.10.22г."
+            },
+            {
+              "name": "Подшипник 1680208",
+              "unit": "шт",
+              "quantity": 12,
+              "price": 14.33,
+              "sum": 171.96,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 180209(6209)",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 9.36,
+              "sum": 28.08,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 180211(6211)",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 14.21,
+              "sum": 71.05,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 208",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 17,
+              "sum": 68,
+              "supplier": "Титул",
+              "ttnNumber": "0229215 27,02,2025"
+            },
+            {
+              "name": "Подшипник 212",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 37.25,
+              "sum": 74.5,
+              "supplier": "База МТС",
+              "ttnNumber": "0206132 06,03,2025"
+            },
+            {
+              "name": "Подшипник 2310",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 38.38,
+              "sum": 115.14,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 27307",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 8.68,
+              "sum": 26.04,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 312",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 69.15,
+              "sum": 276.6,
+              "supplier": "База МТС",
+              "ttnNumber": "0206132 06,03,2025"
+            },
+            {
+              "name": "Подшипник 50307/6307",
+              "unit": "шт",
+              "quantity": 7,
+              "price": 31.63,
+              "sum": 221.41,
+              "supplier": "Аромастер Плюс",
+              "ttnNumber": "2949516 22.06.2022г."
+            },
+            {
+              "name": "Подшипник 50307/6307",
+              "unit": "шт",
+              "quantity": 10,
+              "price": 32.3,
+              "sum": 323,
+              "supplier": "Аромастер Плюс",
+              "ttnNumber": "2949516 22.06.2022г."
+            },
+            {
+              "name": "Подшипник 6209",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 6.84,
+              "sum": 13.68,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 6209",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 9.26,
+              "sum": 18.52,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 6210-2RS",
+              "unit": "шт",
+              "quantity": 34,
+              "price": 9.84,
+              "sum": 334.56,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 680314",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 54.95,
+              "sum": 54.95,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник 7212 (30212)",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 32.48,
+              "sum": 64.96,
+              "supplier": "БелСнабПодшипник",
+              "ttnNumber": "0472026 29.11.22г"
+            },
+            {
+              "name": "подшипник 8310 (51310)",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 30.71,
+              "sum": 30.71,
+              "supplier": "БелСнабПодшипник",
+              "ttnNumber": "0472103 09.02.2023г."
+            },
+            {
+              "name": "подшипник 943/30",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 3.97,
+              "sum": 7.94,
+              "supplier": "ТехноОкруг",
+              "ttnNumber": "0784784 12.05.2023г."
+            },
+            {
+              "name": "Подшипник выжим.3151067031",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 114.12,
+              "sum": 114.12,
+              "supplier": "Титул",
+              "ttnNumber": "0489274 30,12,2024"
+            },
+            {
+              "name": "Подшипник ДАС 25520037 2RS",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 21.12,
+              "sum": 21.12,
+              "supplier": "Агрополис",
+              "ttnNumber": "2152074 10,08,2023"
+            },
+            {
+              "name": "Подшипник качения 380708ЕА10Т2С17",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 24.34,
+              "sum": 121.7,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник ШСП 30",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 2.85,
+              "sum": 5.7,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Подшипник ШСП25",
+              "unit": "шт",
+              "quantity": 19,
+              "price": 3.96,
+              "sum": 75.24,
+              "supplier": "Титул",
+              "ttnNumber": "0229075 12,02,2025"
+            },
+            {
+              "name": "Подшипник3056206",
+              "unit": "шт",
+              "quantity": 9,
+              "price": 7,
+              "sum": 63,
+              "supplier": "Агрополис",
+              "ttnNumber": "1468160 08,10,2024"
+            },
+            {
+              "name": "подшипникUCF-207 D1 NSK",
+              "unit": "шт",
+              "quantity": 20,
+              "price": 169.81,
+              "sum": 3396.2,
+              "supplier": "Райф",
+              "ttnNumber": "1687148 12,09,2025"
+            },
+            {
+              "name": "Полукорпус ПР 16.01.436",
+              "unit": "шт",
+              "quantity": 44,
+              "price": 0.88,
+              "sum": 38.72,
+              "supplier": "Агрополис",
+              "ttnNumber": "3506734 27,06,2025"
+            },
+            {
+              "name": "Полуподшипник ПБ",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 1.03,
+              "sum": 4.12,
+              "supplier": "Агрополис",
+              "ttnNumber": "3506734 27,06,2025"
+            },
+            {
+              "name": "Пружина 03-490651",
+              "unit": "шт",
+              "quantity": 9,
+              "price": 5.48,
+              "sum": 49.32,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316880 22,08,2025"
+            },
+            {
+              "name": "Пружина длин.9006.39.15.ЕС",
+              "unit": "шт",
+              "quantity": 6,
+              "price": 2.72,
+              "sum": 16.32,
+              "supplier": "Агрополис",
+              "ttnNumber": "0316880 22,08,2025"
+            },
+            {
+              "name": "Раскос 50-4605012",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 65.2,
+              "sum": 65.2,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "РВД М20*1,5",
+              "unit": "шт",
+              "quantity": 7,
+              "price": 14.6,
+              "sum": 102.2,
+              "supplier": "База МТС",
+              "ttnNumber": "0547899 21,11,2025"
+            },
+            {
+              "name": "РВД М20*1,5",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 14.9,
+              "sum": 74.5,
+              "supplier": "База МТС",
+              "ttnNumber": "0547899 21,11,2025"
+            },
+            {
+              "name": "Регулятор напряжения",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 6.1,
+              "sum": 6.1,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Реле 7402.3708.800",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 65.57,
+              "sum": 65.57,
+              "supplier": "Титул",
+              "ttnNumber": "0269974 27.01.2023г."
+            },
+            {
+              "name": "Реле стартера",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 4.76,
+              "sum": 4.76,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Реле я112б",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 6.05,
+              "sum": 6.05,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Реле-регулятор ARB0387AD_KR1 МТЗ-3022 14.5V 14mm",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 20.22,
+              "sum": 20.22,
+              "supplier": "Титул",
+              "ttnNumber": "0184177 14.02.2023г."
+            },
+            {
+              "name": "Ремень  68*24-2600",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 251.1,
+              "sum": 251.1,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень 1000-А 970 L.",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 1.78,
+              "sum": 3.56,
+              "supplier": "Титул",
+              "ttnNumber": "0930225 31,07,2023"
+            },
+            {
+              "name": "Ремень 14М-85-1400",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 133.98,
+              "sum": 133.98,
+              "supplier": "Агрополис",
+              "ttnNumber": "1602351 29,10,2024"
+            },
+            {
+              "name": "Ремень 1775*13",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 8.34,
+              "sum": 25.02,
+              "supplier": "Титул",
+              "ttnNumber": "0051199 24,11,2025"
+            },
+            {
+              "name": "Ремень 1800-В",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 3.75,
+              "sum": 15,
+              "supplier": "Титул",
+              "ttnNumber": "0050514 19,08,2025"
+            },
+            {
+              "name": "Ремень 2/НВ-2162",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 27.44,
+              "sum": 27.44,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень 2НВ3812LА",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 28.56,
+              "sum": 28.56,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень 3/НВ-2662",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 50.68,
+              "sum": 202.72,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень 3/НВ21621а",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 55.06,
+              "sum": 55.06,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826282 16,08,2024"
+            },
+            {
+              "name": "Ремень 3НВ2162л",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 95.39,
+              "sum": 95.39,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826027 17,06,2024"
+            },
+            {
+              "name": "Ремень 4НА-2886",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 32.2,
+              "sum": 64.4,
+              "supplier": "Агрополис",
+              "ttnNumber": "0172719 26,08,2024"
+            },
+            {
+              "name": "Ремень 4НВ4562LА",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 70.1,
+              "sum": 70.1,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень 52*16-1250",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 77,
+              "sum": 77,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень А-2120",
+              "unit": "шт",
+              "quantity": 7,
+              "price": 10.41,
+              "sum": 72.87,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень вентилятора",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 104.88,
+              "sum": 104.88,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ремень многоручьевой",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 153.41,
+              "sum": 306.82,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "5155048 20,08,2025"
+            },
+            {
+              "name": "Рессора ас 430807",
+              "unit": "шт",
+              "quantity": 17,
+              "price": 16.2,
+              "sum": 275.4,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Рессоры 12500.05.00-01-01-00 060703",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 187,
+              "sum": 187,
+              "supplier": "ЛикБас",
+              "ttnNumber": "2621179 02.02.2023г."
+            },
+            {
+              "name": "Розетка электрическая",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 6.64,
+              "sum": 6.64,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Рукав 100рVC",
+              "unit": "м",
+              "quantity": 6,
+              "price": 35.61,
+              "sum": 213.66,
+              "supplier": "Титул",
+              "ttnNumber": "0050714 15,09,2025"
+            },
+            {
+              "name": "Рукав всасывающ. Б-1-100-4М",
+              "unit": "м",
+              "quantity": 4,
+              "price": 42.7,
+              "sum": 170.8,
+              "supplier": "База МТС",
+              "ttnNumber": "0649076 06,05,2024"
+            },
+            {
+              "name": "Ручка наружная левая",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 90.05,
+              "sum": 90.05,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Сальник 115/150/14",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 55.5,
+              "sum": 222,
+              "supplier": "Иванищев",
+              "ttnNumber": "0253536 29,05,2024"
+            },
+            {
+              "name": "Сальник 50*70*10",
+              "unit": "шт",
+              "quantity": 7,
+              "price": 2.16,
+              "sum": 15.12,
+              "supplier": "Титул",
+              "ttnNumber": "1030445 12,1,2024"
+            },
+            {
+              "name": "Свечи зажигания",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 12.3,
+              "sum": 12.3,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Сегмент Н.066.14",
+              "unit": "шт",
+              "quantity": 60,
+              "price": 0.99,
+              "sum": 59.4,
+              "supplier": "Агрополис",
+              "ttnNumber": "3508332 25,07,2025"
+            },
+            {
+              "name": "Скат КВС1-3903401",
+              "unit": "шт",
+              "quantity": 12,
+              "price": 7.2,
+              "sum": 86.4,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Скоба МТТ23.34.601",
+              "unit": "шт",
+              "quantity": 17,
+              "price": 0.9,
+              "sum": 15.3,
+              "supplier": "Агрополис",
+              "ttnNumber": "1439827 22,04,2024"
+            },
+            {
+              "name": "Стакан МТЗ 1520-2308035",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 50.66,
+              "sum": 50.66,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Стекло переднее 2522-6703011-ЕН",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 169.21,
+              "sum": 169.21,
+              "supplier": "ТехноОкруг",
+              "ttnNumber": "0538551 27,09,2024"
+            },
+            {
+              "name": "Стойка пружин УПС400мм",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 67.58,
+              "sum": 337.9,
+              "supplier": "Райф",
+              "ttnNumber": "2030426 22,09,2025"
+            },
+            {
+              "name": "Ступица АПД 7,5.04.070",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 83.17,
+              "sum": 249.51,
+              "supplier": "Агрополис",
+              "ttnNumber": "3102870 14,08,2024"
+            },
+            {
+              "name": "Термостат 80г.с ТС 107-1306100-01",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 7.84,
+              "sum": 7.84,
+              "supplier": "ТехноОкруг",
+              "ttnNumber": "0136362 13,09,2023"
+            },
+            {
+              "name": "Трубка ПА д15*1,0",
+              "unit": "м",
+              "quantity": 8,
+              "price": 2.06,
+              "sum": 16.48,
+              "supplier": "Титул",
+              "ttnNumber": "0299998 31,10,2024"
+            },
+            {
+              "name": "трубка тормозная",
+              "unit": "м",
+              "quantity": 10,
+              "price": 4,
+              "sum": 40,
+              "supplier": "База МТС",
+              "ttnNumber": "0571887 24,07,2024"
+            },
+            {
+              "name": "трубка тормозная ПХЛ D=10 х 1,0мм",
+              "unit": "м",
+              "quantity": 2.5,
+              "price": 0.8,
+              "sum": 2,
+              "supplier": "База мат.-тех. снабжения",
+              "ttnNumber": "1025153 18.05.2023г."
+            },
+            {
+              "name": "Турбокомпрессор ТКР7-00.01",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 299.34,
+              "sum": 299.34,
+              "supplier": "ПремияМАстер",
+              "ttnNumber": "1478007 25,07,2024"
+            },
+            {
+              "name": "Тяга длинная ППЛ02.05.000",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 52.8,
+              "sum": 52.8,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2826027 17,06,2024"
+            },
+            {
+              "name": "Тяга ППЛ02.05.000",
+              "unit": "шт",
+              "quantity": 6,
+              "price": 48.79,
+              "sum": 292.74,
+              "supplier": "Минойтовский р/завод",
+              "ttnNumber": "0434629 28,08,2024"
+            },
+            {
+              "name": "Тяга ФКЦИ 8838.00.000",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 30.01,
+              "sum": 60.02,
+              "supplier": "Агрополис",
+              "ttnNumber": "2701384 17,12,2025"
+            },
+            {
+              "name": "ТягаФКЦИ8837.00.000",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 57.94,
+              "sum": 57.94,
+              "supplier": "Агрополис",
+              "ttnNumber": "1439827 22,04,2024"
+            },
+            {
+              "name": "Уголок КВС-4-3903411",
+              "unit": "шт",
+              "quantity": 16,
+              "price": 3.66,
+              "sum": 58.56,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Указатель повор.",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 3.68,
+              "sum": 7.36,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Ф/эл.возд. БАК10312 (ан.432 410 222 7) осушителя М39*1,5",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 32.94,
+              "sum": 32.94,
+              "supplier": "Титул",
+              "ttnNumber": "0184683 05.04.2023г."
+            },
+            {
+              "name": "Ф/эл.топл.6113",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 31.68,
+              "sum": 63.36,
+              "supplier": "Титул",
+              "ttnNumber": "0050514 19,08,2025"
+            },
+            {
+              "name": "Фара светодиодна я квадратная",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 18.55,
+              "sum": 37.1,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Фара светодиодная квадратная",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 13.1,
+              "sum": 13.1,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Фара светодиодная круглая",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 17.7,
+              "sum": 35.4,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Фара светодиоднаякруглая",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 18.9,
+              "sum": 37.8,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Фильтр воздушный СК005100124",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 198.24,
+              "sum": 198.24,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "2714801 24,08,2023"
+            },
+            {
+              "name": "Фильтр гидравлический 1048",
+              "unit": "шт",
+              "quantity": 3,
+              "price": 20.5,
+              "sum": 61.5,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фильтр масляный 405",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 7.85,
+              "sum": 15.7,
+              "supplier": "База МТС",
+              "ttnNumber": "1025084 17,07,2023"
+            },
+            {
+              "name": "Фитинг д. 16 мм прямой",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 4.16,
+              "sum": 8.32,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фитинг д. 4 мм прямой",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 0.94,
+              "sum": 3.76,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фитинг д. 6 мм прямой",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 1,
+              "sum": 5,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фитинг д. 8 мм прямой",
+              "unit": "шт",
+              "quantity": 5,
+              "price": 1.33,
+              "sum": 6.65,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фитинг д.12 мм прямой",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 8.33,
+              "sum": 16.66,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фитинг д.16 мм прямой",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 4.16,
+              "sum": 16.64,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Фонарь передний ф-402.00.00",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 14.1,
+              "sum": 28.2,
+              "supplier": "База МТС",
+              "ttnNumber": "0206060 17,01,2025"
+            },
+            {
+              "name": "Хомут КВС-4-3903412",
+              "unit": "шт",
+              "quantity": 16,
+              "price": 3.36,
+              "sum": 53.76,
+              "supplier": "Агроснабдеталь",
+              "ttnNumber": "1291836 26,04,2025"
+            },
+            {
+              "name": "Цапфа АКШ 12.20.001",
+              "unit": "шт",
+              "quantity": 18,
+              "price": 26.14,
+              "sum": 470.52,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Чистик КВС 1-0111290",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 165.25,
+              "sum": 165.25,
+              "supplier": "ПремияМастер",
+              "ttnNumber": "31,08,0202"
+            },
+            {
+              "name": "шайба зуба ПБ 16.01.418",
+              "unit": "шт",
+              "quantity": 20,
+              "price": 0.74,
+              "sum": 14.8,
+              "supplier": "Агрополис",
+              "ttnNumber": "0278831 01.06.2023Г."
+            },
+            {
+              "name": "Шестерня РУ-7000",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 175,
+              "sum": 350,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Шкворень",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 36.36,
+              "sum": 36.36,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Шкив 2-х руч.494277Б с валом",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 229.44,
+              "sum": 229.44,
+              "supplier": "Агрополис",
+              "ttnNumber": "2319685 12,09,2024"
+            },
+            {
+              "name": "Шланг подкач.18м Р/18",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 35,
+              "sum": 35,
+              "supplier": "ТехноОкруг",
+              "ttnNumber": "0538677 14,03,2025"
+            },
+            {
+              "name": "Шланг Томифлекс д. 32 мм",
+              "unit": "пог. м",
+              "quantity": 30,
+              "price": 2.76,
+              "sum": 82.8,
+              "supplier": "Агрополис",
+              "ttnNumber": "1468146 03,10,2024"
+            },
+            {
+              "name": "Щетка стеклоочист",
+              "unit": "шт",
+              "quantity": 1,
+              "price": 25.17,
+              "sum": 25.17,
+              "supplier": "Титул",
+              "ttnNumber": "0228854 23,05,2025"
+            },
+            {
+              "name": "Эл.фильтрующ.топлива МАЗ",
+              "unit": "шт",
+              "quantity": 4,
+              "price": 4.7,
+              "sum": 18.8,
+              "supplier": "",
+              "ttnNumber": ""
+            },
+            {
+              "name": "Эл.фильтрующ.топлива МАЗ",
+              "unit": "шт",
+              "quantity": 2,
+              "price": 11.15,
+              "sum": 22.3,
+              "supplier": "База МТС",
+              "ttnNumber": "27,8,2024"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
